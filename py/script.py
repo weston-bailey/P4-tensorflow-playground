@@ -8,11 +8,7 @@ pp = pprint.PrettyPrinter(indent=2)
 # load training and testing img dataset
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
-np.set_printoptions(threshold=np.inf)
 print(np.matrix(x_test[0]))
-
-# print(x_test[0].__str__())
-# pp.pprint(x_test[0])
 
 # save data for predictions
 (x_predict, y_predict) = (x_test, y_test)
@@ -20,6 +16,8 @@ print(np.matrix(x_test[0]))
 # reshape data into binary 
 x_train = x_train.reshape(60000, 784).astype("float32") / 255
 x_test = x_test.reshape(10000, 784).astype("float32") / 255
+
+# TODO export dataset in tfjs format
 
 # Using keras functional API to create model
 # https://keras.io/guides/functional_api/
@@ -66,19 +64,15 @@ NUM_LAYERS = 10
 EPOCHS = 10
 BATCH_SIZE = 128
 
-# model = model_create_functional(NUM_LAYERS)
+model = model_create_functional(NUM_LAYERS)
 
-# # print model
-# model.summary()
+# print model
+model.summary()
 
-# model, history = train_model(model, x_train, y_train, BATCH_SIZE, EPOCHS)
+model, history = train_model(model, x_train, y_train, BATCH_SIZE, EPOCHS)
 
-# pp.pprint(history.history)
+pp.pprint(history.history)
 
-# # use test data
-# test_scores = model.evaluate(x_test, y_test, verbose=2)
-# print(f'Test loss: {test_scores[0]} Test accuracy: {test_scores[1]}')
-
-# TODO export dataset in tfjs format
-
-# model.predict(x_predict[0], y_predict[0])
+# use test data
+test_scores = model.evaluate(x_test, y_test, verbose=2)
+print(f'Test loss: {test_scores[0]} Test accuracy: {test_scores[1]}')
