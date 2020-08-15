@@ -148,35 +148,35 @@ def model_create_sequential_advanced_2(input_shape, num_classes):
 # https://keras.io/guides/functional_api/
 # https://keras.io/examples/vision/mnist_convnet/
 
-# # specify amount of layers beyond input and ouput (input shape hard coded)
-# # this function is unused in the playground
-# def model_create_functional(num_hidden_layers):
-#   # input node
-#   inputs = keras.Input(shape=(784,))
+# specify amount of layers beyond input and ouput (input shape hard coded)
+# this function is unused in the playground
+def model_create_functional(num_hidden_layers):
+  # input node
+  inputs = keras.Input(shape=(784,))
 
-#   # create node in graph of layers
-#   dense = layers.Dense(64, activation="relu")
-#   x = dense(inputs)
+  # create node in graph of layers
+  dense = layers.Dense(64, activation="relu")
+  x = dense(inputs)
 
-#   # add aditional layers
-#   for _ in range(num_hidden_layers):
-#     x = layers.Dense(64, activation="relu")(x)
+  # add aditional layers
+  for _ in range(num_hidden_layers):
+    x = layers.Dense(64, activation="relu")(x)
 
-#   # create output layer
-#   outputs = layers.Dense(10)(x)
+  # create output layer
+  outputs = layers.Dense(10)(x)
 
-#   # create model
-#   model = keras.Model(inputs=inputs, outputs=outputs, name='minst_model')
+  # create model
+  model = keras.Model(inputs=inputs, outputs=outputs, name='minst_model')
 
-#   # print model
-#   model.summary()
+  # print model
+  model.summary()
 
-#   # compile model
-#   model.compile(
-#     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-#     optimizer=keras.optimizers.RMSprop(),
-#     metrics=["accuracy"],
-#   )
+  # compile model
+  model.compile(
+    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    optimizer=keras.optimizers.RMSprop(),
+    metrics=["accuracy"],
+  )
 
-#   # retun the model
-#   return model
+  # retun the model
+  return model
