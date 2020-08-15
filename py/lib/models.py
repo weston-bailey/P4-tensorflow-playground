@@ -2,9 +2,29 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-import matplotlib.pyplot as plt
-import pprint
-pp = pprint.PrettyPrinter(indent=2)
+
+# for training and testing models. returns trainded model and training history data
+def train_model(model, x_train, y_train, x_test, y_test, batch_size, epochs):
+  # train model on data
+  history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.2)
+
+  # test model on test dataset, print the evaluation
+  test_scores = model.evaluate(x_test, y_test, verbose=1)
+
+  # return 
+  return model, history, test_scores
+
+# returns prediciton of input img
+def predict_model(model, img):
+  # format img
+  # TODO variable shape input
+  img = img.reshape(1, 28, 28, 1).astype("float32") / 255
+
+  # array of predictions
+  predictions = model.predict(img)
+
+  # return index of highest prediction
+  return np.argmax(predictions)
 
 # Sequential syntax models
 # https://keras.io/guides/sequential_model/
@@ -128,35 +148,35 @@ def model_create_sequential_advanced_2(input_shape, num_classes):
 # https://keras.io/guides/functional_api/
 # https://keras.io/examples/vision/mnist_convnet/
 
-# specify amount of layers beyond input and ouput (input shape hard coded)
-# this function is unused in the playground
-def model_create_functional(num_hidden_layers):
-  # input node
-  inputs = keras.Input(shape=(784,))
+# # specify amount of layers beyond input and ouput (input shape hard coded)
+# # this function is unused in the playground
+# def model_create_functional(num_hidden_layers):
+#   # input node
+#   inputs = keras.Input(shape=(784,))
 
-  # create node in graph of layers
-  dense = layers.Dense(64, activation="relu")
-  x = dense(inputs)
+#   # create node in graph of layers
+#   dense = layers.Dense(64, activation="relu")
+#   x = dense(inputs)
 
-  # add aditional layers
-  for _ in range(num_hidden_layers):
-    x = layers.Dense(64, activation="relu")(x)
+#   # add aditional layers
+#   for _ in range(num_hidden_layers):
+#     x = layers.Dense(64, activation="relu")(x)
 
-  # create output layer
-  outputs = layers.Dense(10)(x)
+#   # create output layer
+#   outputs = layers.Dense(10)(x)
 
-  # create model
-  model = keras.Model(inputs=inputs, outputs=outputs, name='minst_model')
+#   # create model
+#   model = keras.Model(inputs=inputs, outputs=outputs, name='minst_model')
 
-  # print model
-  model.summary()
+#   # print model
+#   model.summary()
 
-  # compile model
-  model.compile(
-    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    optimizer=keras.optimizers.RMSprop(),
-    metrics=["accuracy"],
-  )
+#   # compile model
+#   model.compile(
+#     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+#     optimizer=keras.optimizers.RMSprop(),
+#     metrics=["accuracy"],
+#   )
 
-  # retun the model
-  return model
+#   # retun the model
+#   return model
