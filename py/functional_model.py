@@ -12,9 +12,6 @@ pp = pprint.PrettyPrinter(indent=2)
 
 # print(np.matrix(x_test[0]))
 
-# save data for predictions
-(x_predict, y_predict) = (x_test, y_test)
-
 # reshape data into binary 
 x_train = x_train.reshape(60000, 784).astype("float32") / 255
 x_test = x_test.reshape(10000, 784).astype("float32") / 255
@@ -44,10 +41,9 @@ def model_create_functional(num_layers):
   # create model
   model = keras.Model(inputs=inputs, outputs=outputs, name='minst_model')
 
-  # retun the model
-  return model
+  # print model
+  model.summary()
 
-def train_model(model, x_train, y_train, batch_size, epochs):
   # compile model
   model.compile(
       loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
@@ -55,6 +51,10 @@ def train_model(model, x_train, y_train, batch_size, epochs):
       metrics=["accuracy"],
   )
 
+  # retun the model
+  return model
+
+def train_model(model, x_train, y_train, batch_size, epochs):
   # train model on data
   history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.2)
 
@@ -67,9 +67,6 @@ EPOCHS = 10
 BATCH_SIZE = 128
 
 model = model_create_functional(NUM_LAYERS)
-
-# print model
-model.summary()
 
 model, history = train_model(model, x_train, y_train, BATCH_SIZE, EPOCHS)
 
@@ -87,4 +84,3 @@ plt.show()
 test_scores = model.evaluate(x_test, y_test, verbose=2)
 print(f'Test loss: {test_scores[0]} Test accuracy: {test_scores[1]}')
 
-# model((x_test[0], y_test[0]))
