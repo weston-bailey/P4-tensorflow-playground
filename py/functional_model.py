@@ -10,7 +10,7 @@ pp = pprint.PrettyPrinter(indent=2)
 # https://keras.io/api/datasets/mnist/#load_data-function
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
-# print(np.matrix(x_test[0]))
+(x_predict, y_predict) = (x_test, y_test)
 
 # reshape data into binary 
 x_train = x_train.reshape(60000, 784).astype("float32") / 255
@@ -84,3 +84,13 @@ plt.show()
 test_scores = model.evaluate(x_test, y_test, verbose=2)
 print(f'Test loss: {test_scores[0]} Test accuracy: {test_scores[1]}')
 
+predict = x_predict[0].reshape(1, 784).astype("float32") / 255
+# print(predict)
+predict = model.predict(
+    predict, batch_size=None, verbose=0, steps=None, callbacks=None, max_queue_size=10,
+    workers=1, use_multiprocessing=False
+)
+
+predict = np.argmax(predict)
+
+print(predict)
