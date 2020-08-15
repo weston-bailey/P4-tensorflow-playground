@@ -16,3 +16,19 @@ function testModel() {
 
   return model
 }
+
+// load data
+
+// groom data
+
+// create model
+
+// fit model
+
+// test model
+
+// cast prediction
+
+// ????????
+
+// PROFIT!!!
