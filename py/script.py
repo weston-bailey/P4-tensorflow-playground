@@ -2,8 +2,26 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+import pprint
+pp = pprint.PrettyPrinter(indent=2)
 
-# Using keras functional API 
+# load training and testing img dataset
+(x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+
+np.set_printoptions(threshold=np.inf)
+print(np.matrix(x_test[0]))
+
+# print(x_test[0].__str__())
+# pp.pprint(x_test[0])
+
+# save data for predictions
+(x_predict, y_predict) = (x_test, y_test)
+
+# reshape data into binary 
+x_train = x_train.reshape(60000, 784).astype("float32") / 255
+x_test = x_test.reshape(10000, 784).astype("float32") / 255
+
+# Using keras functional API to create model
 # https://keras.io/guides/functional_api/
 # https://keras.io/examples/vision/mnist_convnet/
 
@@ -29,14 +47,38 @@ def model_create_functional(num_layers):
   # retun the model
   return model
 
-model = model_create_functional(1)
+def train_model(model, x_train, y_train, batch_size, epochs):
+  # compile model
+  model.compile(
+      loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+      optimizer=keras.optimizers.RMSprop(),
+      metrics=["accuracy"],
+  )
 
-# print model
-model.summary()
+  # train model on data
+  history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.2)
 
+  # return 
+  return model, history
 
+# model and training consts
+NUM_LAYERS = 10
+EPOCHS = 10
+BATCH_SIZE = 128
 
+# model = model_create_functional(NUM_LAYERS)
+
+# # print model
+# model.summary()
+
+# model, history = train_model(model, x_train, y_train, BATCH_SIZE, EPOCHS)
+
+# pp.pprint(history.history)
+
+# # use test data
+# test_scores = model.evaluate(x_test, y_test, verbose=2)
+# print(f'Test loss: {test_scores[0]} Test accuracy: {test_scores[1]}')
 
 # TODO export dataset in tfjs format
 
-# TODO create tf model
+# model.predict(x_predict[0], y_predict[0])
