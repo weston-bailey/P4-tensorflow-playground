@@ -20,6 +20,7 @@ input_shape = (28, 28, 1)
 # Scale images to the [0, 1] range
 x_train = x_train.astype("float32") / 255
 x_test = x_test.astype("float32") / 255
+
 # Make sure images have shape (28, 28, 1)
 x_train = np.expand_dims(x_train, -1)
 x_test = np.expand_dims(x_test, -1)
@@ -41,8 +42,19 @@ model = keras.Sequential()
 # model.add(layers.Dense(num_classes, activation="softmax"))
 
 # alt model
+# using conv2d convolution layers
+# https://keras.io/api/layers/convolution_layers/
+# maxpooling2d maxpooling layers
+# https://keras.io/api/layers/pooling_layers/
+# using core dense layers 
+# https://keras.io/api/layers/core_layers/
+# using flatten reshaping later
+# https://keras.io/api/layers/reshaping_layers/
+# using dropout regularizarion layer
+# https://keras.io/api/layers/regularization_layers/
+
+# 2D spatial convolution input layer 
 # model.add(layers.Conv2D(30, (5, 5), input_shape=(input_shape), activation='relu'))
-# model.add(layers.MaxPooling2D())
 # model.add(layers.Conv2D(15, (3, 3), activation='relu'))
 # model.add(layers.MaxPooling2D())
 # model.add(layers.Dropout(0.2))
@@ -62,7 +74,7 @@ model.add(layers.Dense(128, activation='relu'))
 model.add(layers.Dense(128, activation='relu'))
 model.add(layers.Dense(128, activation='relu'))
 model.add(layers.Dense(128, activation='relu'))
-model.add(layers.Dense(50, activation='relu'))
+# model.add(layers.Dense(50, activation='relu'))
 model.add(layers.Dense(num_classes, activation='softmax'))
 
 model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
@@ -83,21 +95,28 @@ model, history = train_model(model, x_train, y_train, BATCH_SIZE, EPOCHS)
 # save the model
 model.save('model.h5')
 
-plt.plot(history.history['accuracy'], 'C1', label='accuracy')
-plt.legend()
-plt.ylabel('epochs')
-plt.show()
+# plt.plot(history.history['accuracy'], 'C1', label='accuracy')
+# plt.legend()
+# plt.ylabel('epochs')
+# plt.draw()
 
-test_scores = model.evaluate(x_test, y_test, verbose=0)
+# test model on test dataset, print the evaluation
+test_scores = model.evaluate(x_test, y_test, verbose=1)
 print(f'Test loss: {test_scores[0]} Test accuracy: {test_scores[1]}')
 
-predict = x_predict[0].reshape(1, 28, 28, 1).astype("float32") / 255
-# print(predict)
-predict = model.predict(
-    predict, batch_size=None, verbose=0, steps=None, callbacks=None, max_queue_size=10,
-    workers=1, use_multiprocessing=False
-)
+# index of test img for prediciton
+prediction_index = 1
 
+# reshape a test img for prediction
+predict = x_predict[prediction_index].reshape(1, 28, 28, 1).astype("float32") / 255
+
+plt.imshow(x_predict[prediction_index], cmap=plt.get_cmap('gray'))
+
+predict = model.predict(predict)
+# find the largerest pridection from the softmax array
 predict = np.argmax(predict)
 
-print(predict)
+print(f'evalutation of input: {predict}')
+
+# call show so plot doesn't dissapear
+plt.show()
