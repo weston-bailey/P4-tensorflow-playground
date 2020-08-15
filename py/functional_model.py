@@ -2,13 +2,15 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+import matplotlib.pyplot as plt
 import pprint
 pp = pprint.PrettyPrinter(indent=2)
 
 # load training and testing img dataset
+# https://keras.io/api/datasets/mnist/#load_data-function
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
-print(np.matrix(x_test[0]))
+# print(np.matrix(x_test[0]))
 
 # save data for predictions
 (x_predict, y_predict) = (x_test, y_test)
@@ -71,8 +73,18 @@ model.summary()
 
 model, history = train_model(model, x_train, y_train, BATCH_SIZE, EPOCHS)
 
-pp.pprint(history.history)
+# print training history
+# pp.pprint(history.history)
+
+# plot history
+# plt.plot(history.history['loss'], 'C2', label='loss')
+plt.plot(history.history['accuracy'], 'C1', label='accuracy')
+plt.legend()
+plt.ylabel('epochs')
+plt.show()
 
 # use test data
 test_scores = model.evaluate(x_test, y_test, verbose=2)
 print(f'Test loss: {test_scores[0]} Test accuracy: {test_scores[1]}')
+
+# model((x_test[0], y_test[0]))
