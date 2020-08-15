@@ -91,4 +91,6 @@ predict = model.predict(
     workers=1, use_multiprocessing=False
 )
 
+predict = np.argmax(predict)
+
 print(predict)
