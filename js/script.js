@@ -9,7 +9,10 @@ let state = {
   predictionIndex: 1,
   trainDataSize: 55000,
   testDataSize: 15000
+
 }
+
+let globalData;
 
 console.log('hello front end')
 async function init() {
@@ -20,6 +23,7 @@ async function init() {
   const N_DATA  = 65000
   // load data
   const data = await getData()
+  globalData = data
   console.log(data)
   // groom data
   const [x_train, y_train] = formatTrainData(data)  
@@ -44,35 +48,7 @@ async function init() {
     console.log('Final accuracy', info.history.acc);
     console.log(model)
     console.log(info)
-
-    // cast prediction
-
-
-    x_predict = x_test.slice([0, 0, 0, 0], [1, IMAGE_H, IMAGE_W, 1])
-    y_predict = y_test.slice([0, 0], [1, N_CLASSES])
-
-    console.log(x_predict)
-    console.log(y_predict)
-
-    const preds = model.predict(x_predict).argMax(-1);
-    console.log(preds)
-
-    // preds.print()
-    console.log(preds.arraySync()) // this is the prediction value
-
-    // show prediction on canvas
-    var canvas = document.getElementById('predict')
-    var p = document.getElementById("pedict-num")
-    p.innerText = `I predicted the above image is a ${preds.arraySync()}`
-    ctx = canvas.getContext('2d')
-    canvas.width = 28;
-    canvas.height = 28;
-    canvas.style = 'margin: 4px;';
-    x_predict = x_predict.reshape([28, 28, 1]);
-    tf.browser.toPixels(x_predict, canvas)
-    .then( () => {
-      
-    })
+    modelPredict(data)
   });
   // console.log(model)
   // console.log(history)
@@ -84,6 +60,49 @@ async function init() {
   
   // PROFIT!!!
   
+}
+
+function modelPredict(data){
+  const [x_test, y_test] = formatTestData(data)  
+      // cast prediction
+      const IMAGE_H = 28
+      const IMAGE_W = 28
+      const IMAGE_SIZE = IMAGE_H * IMAGE_W
+      const N_CLASSES = 10
+      const N_DATA  = 65000
+      // load data
+
+
+    // x_predict = x_test.slice([0, 0, 0, 0], [1, IMAGE_H, IMAGE_W, 1])
+    let rand = Math.floor(Math.random() * 1000)
+    x_predict = x_test.slice([rand, 0, 0, 0], [1, IMAGE_H, IMAGE_W, 1])
+    y_predict = y_test.slice([rand, 0], [1, N_CLASSES]).argMax(-1)
+    // y_predict = y_predict.arraySync().argMax(-1)
+
+    console.log(y_predict)
+
+    // console.log(x_predict)
+    // console.log(y_predict)
+
+    const preds = model.predict(x_predict).argMax(-1);
+    console.log(preds)
+
+    // preds.print()
+    console.log(preds.arraySync()) // this is the prediction value
+
+    // show prediction on canvas
+    var canvas = document.getElementById('predict')
+    var p = document.getElementById("pedict-num")
+    p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${y_predict.arraySync()}`
+    ctx = canvas.getContext('2d')
+    canvas.width = 28;
+    canvas.height = 28;
+    canvas.style = 'margin: 4px;';
+    x_predict = x_predict.reshape([28, 28, 1]);
+    tf.browser.toPixels(x_predict, canvas)
+    .then( () => {
+      
+    })
 }
 
 function formatTestData(data) {
