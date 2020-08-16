@@ -8,23 +8,16 @@ let state = {
   batchSize: 128,
   predictionIndex: 1,
   trainDataSize: 55000,
-  testDataSize: 15000
+  testDataSize: 15000,
+  imageHeight: 28,
+  imageWidth: 28,
+  imageSize: 28 * 28,
 
 }
 
-let globalData;
-
-console.log('hello front end')
 async function init() {
-  const IMAGE_H = 28
-  const IMAGE_W = 28
-  const IMAGE_SIZE = IMAGE_H * IMAGE_W
-  const N_CLASSES = 10
-  const N_DATA  = 65000
   // load data
   const data = await getData()
-  globalData = data
-  console.log(data)
   // groom data
   const [x_train, y_train] = formatTrainData(data)  
   const [x_test, y_test] = formatTestData(data)  
@@ -63,77 +56,54 @@ async function init() {
 }
 
 function modelPredict(data){
+  // get test data
   const [x_test, y_test] = formatTestData(data)  
-      // cast prediction
-      const IMAGE_H = 28
-      const IMAGE_W = 28
-      const IMAGE_SIZE = IMAGE_H * IMAGE_W
-      const N_CLASSES = 10
-      const N_DATA  = 65000
-      // load data
+  // x_predict = x_test.slice([0, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1])
+  let rand = Math.floor(Math.random() * 1000)
+  x_predict = x_test.slice([rand, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1])
+  y_predict = y_test.slice([rand, 0], [1, state.outputClasses]).argMax(-1)
+  // y_predict = y_predict.arraySync().argMax(-1)
 
+  console.log(y_predict)
 
-    // x_predict = x_test.slice([0, 0, 0, 0], [1, IMAGE_H, IMAGE_W, 1])
-    let rand = Math.floor(Math.random() * 1000)
-    x_predict = x_test.slice([rand, 0, 0, 0], [1, IMAGE_H, IMAGE_W, 1])
-    y_predict = y_test.slice([rand, 0], [1, N_CLASSES]).argMax(-1)
-    // y_predict = y_predict.arraySync().argMax(-1)
+  // console.log(x_predict)
+  // console.log(y_predict)
 
-    console.log(y_predict)
+  const preds = model.predict(x_predict).argMax(-1);
+  console.log(preds)
 
-    // console.log(x_predict)
-    // console.log(y_predict)
+  // preds.print()
+  console.log(preds.arraySync()) // this is the prediction value
 
-    const preds = model.predict(x_predict).argMax(-1);
-    console.log(preds)
-
-    // preds.print()
-    console.log(preds.arraySync()) // this is the prediction value
-
-    // show prediction on canvas
-    var canvas = document.getElementById('predict')
-    var p = document.getElementById("pedict-num")
-    p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${y_predict.arraySync()}`
-    ctx = canvas.getContext('2d')
-    canvas.width = 28;
-    canvas.height = 28;
-    canvas.style = 'margin: 4px;';
-    x_predict = x_predict.reshape([28, 28, 1]);
-    tf.browser.toPixels(x_predict, canvas)
-    .then( () => {
-      
-    })
+  // show prediction on canvas
+  var canvas = document.getElementById('predict')
+  var p = document.getElementById("pedict-num")
+  p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${y_predict.arraySync()}`
+  ctx = canvas.getContext('2d')
+  canvas.width = 28;
+  canvas.height = 28;
+  canvas.style = 'margin: 4px;';
+  x_predict = x_predict.reshape([28, 28, 1]);
+  tf.browser.toPixels(x_predict, canvas)
+  .then( () => {
+    
+  })
 }
 
 function formatTestData(data) {
-  const IMAGE_H = 28
-  const IMAGE_W = 28
-  const IMAGE_SIZE = IMAGE_H * IMAGE_W
-  const N_CLASSES = 10
-  const N_DATA  = 65000
+
+  let x_test = tf.tensor4d(data.testImages, [data.testImages.length / state.imageSize, state.imageHeight, state.imageWidth, 1])
   
-  let x_test = tf.tensor4d(data.testImages, [data.testImages.length / IMAGE_SIZE, IMAGE_H, IMAGE_W, 1])
-  
-  let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / N_CLASSES, N_CLASSES])
+  let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / state.outputClasses, state.outputClasses])
   
   return [x_test, y_test]
 }
 
 function formatTrainData(data) {
+
+  let x_train = tf.tensor4d(data.trainImages, [data.trainImages.length / state.imageSize, state.imageHeight, state.imageWidth, 1])
   
-  const IMAGE_H = 28
-  const IMAGE_W = 28
-  const IMAGE_SIZE = IMAGE_H * IMAGE_W
-  const N_CLASSES = 10
-  const N_DATA  = 65000
-  
-  let x_test = tf.tensor4d(data.testImages, [data.testImages.length / IMAGE_SIZE, IMAGE_H, IMAGE_W, 1])
-  
-  let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / N_CLASSES, N_CLASSES])
-  
-  let x_train = tf.tensor4d(data.trainImages, [data.trainImages.length / IMAGE_SIZE, IMAGE_H, IMAGE_W, 1])
-  
-  let y_train = tf.tensor2d(data.trainLabels, [data.trainLabels.length / N_CLASSES, N_CLASSES])
+  let y_train = tf.tensor2d(data.trainLabels, [data.trainLabels.length / state.outputClasses, state.outputClasses])
   
   return [x_train, y_train]
 }
