@@ -12,15 +12,42 @@ let state = {
   imageHeight: 28,
   imageWidth: 28,
   imageSize: 28 * 28,
-
+  numbers: {
+    dataSetLength: 65000,
+    trainTestRatio: 5 / 6,
+    imgPath: 'https://storage.googleapis.com/learnjs-data/model-builder/mnist_images.png',
+    labelPath: 'https://storage.googleapis.com/learnjs-data/model-builder/mnist_labels_uint8',
+  },
+  fashion: {
+    dataSetLength: 70000,
+    trainTestRatio: 6 / 7,
+    imgPath: 'https://storage.googleapis.com/learnjs-data/model-builder/fashion_mnist_images.png',
+    labelPath: 'https://storage.googleapis.com/learnjs-data/model-builder/fashion_mnist_labels_uint8'
+  }
 }
+
 
 async function init() {
   // load data
-  const data = await getData()
+  const numbersData = await getData({
+    imageSize: state.imageSize,
+    outputClasses: state.outputClasses,
+    dataSetLength: state.numbers.dataSetLength,
+    trainTestRatio: state.numbers.trainTestRatio,
+    imgPath: state.numbers.imgPath,
+    labelPath: state.numbers.labelPath
+  });
+  const fashionData = await getData({
+    imageSize: state.imageSize,
+    outputClasses: state.outputClasses,
+    dataSetLength: state.fashion.dataSetLength,
+    trainTestRatio: state.fashion.trainTestRatio,
+    imgPath: state.fashion.imgPath,
+    labelPath: state.fashion.labelPath
+  });
   // groom data
-  const [x_train, y_train] = formatTrainData(data)  
-  const [x_test, y_test] = formatTestData(data)  
+  const [x_train, y_train] = formatTrainData(numbersData)  
+  const [x_test, y_test] = formatTestData(numbersData)  
 
   console.log([x_train, y_train])
   console.log([x_test, y_test])
@@ -41,7 +68,7 @@ async function init() {
     console.log('Final accuracy', info.history.acc);
     console.log(model)
     console.log(info)
-    modelPredict(data)
+    modelPredict(numbersData)
   });
   // console.log(model)
   // console.log(history)
@@ -135,8 +162,8 @@ function modelCreateArbitraryHidden() {
   return model
 }
 
-async function getData() {  
-  const data = new MnistData();
+async function getData(args) {  
+  const data = new MnistData(args);
   await data.load()
   return data
 }
