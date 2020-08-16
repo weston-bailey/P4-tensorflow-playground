@@ -1,5 +1,14 @@
 * {
-  /* color: #39FF14;
+  color: #39FF14;
   background-color: #000000;
-  text-align: center; */
+  text-align: center;
 }
+
+body {
+  background-color: #000000;
+}
+
+h1, h3 {
+  color: #39FF14;
+}
+
