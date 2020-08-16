@@ -1,22 +1,50 @@
 document.addEventListener('DOMContentLoaded', () => init())
 
-console.log('hello front end')
-async function init() {
-  model = testModel()
-  console.log(model)
-  console.log(tf)
-  const data = await getData()
-  console.log(data)
+let state = {
+  hiddenLayers: 10,
+  inputShape: [28, 28, 1],
+  outputClasses: 10,
+  epochs: 10,
+  batchSize: 128,
+  predictionIndex: 1
 }
 
-function testModel() {
+console.log('hello front end')
+async function init() {
+  // load data
+  const data = await getData()
+
+  // groom data
+
+  // create model
+  model = modelCreateArbitraryHidden()
+
+  // fit model
+
+  // test model
+
+  // cast prediction
+
+  // ????????
+
+  // PROFIT!!!
+  
+}
+
+function modelCreateArbitraryHidden() {
   //Create the model
   const model = tf.sequential();
-  model.add(tf.layers.dense({units: 128, inputShape: [1]})); // layer 1
-  model.add(tf.layers.dense({units: 128, inputShape: [128], activation: 'sigmoid'})); // layer 2
-  model.add(tf.layers.dense({units: 1, inputShape: [128]})); // output layer
-  model.compile({loss: 'meanSquaredError', optimizer: 'adam'}); // compile with params
-
+  // add input layer 
+  model.add(tf.layers.flatten({ inputShape: state.inputShape }));
+  // add hidden layers
+  for(let i = 0; i < state.hiddenLayers; i++){
+    model.add(tf.layers.dense({ units: 128, activation: 'relu' })); 
+  }
+  // softmax output layer
+  model.add(tf.layers.dense({ units: state.outputClasses, activation: 'softmax' })); 
+  // compile
+  model.compile({loss: 'categoricalCrossentropy', optimizer: 'adam'});
+  model.summary()
   return model
 }
 
@@ -25,23 +53,6 @@ async function getData() {
   await data.load()
   return data
 }
-
-
-// load data
-
-// groom data
-
-// create model
-
-// fit model
-
-// test model
-
-// cast prediction
-
-// ????????
-
-// PROFIT!!!
 
 /* CODE GRAVEYARD 
 
