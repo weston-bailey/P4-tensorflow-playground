@@ -15,18 +15,8 @@
  * =============================================================================
  */
 
-// const this.imageSize = 784;
-// const this.outputClasses = 10;
-// const this.dataSetLength = 65000;
-
-// const TRAIN_TEST_RATIO = 5 / 6;
-
-// const NUM_TRAIN_ELEMENTS = Math.floor(TRAIN_TEST_RATIO * this.dataSetLength);
-// const NUM_TEST_ELEMENTS = this.dataSetLength - NUM_TRAIN_ELEMENTS;
-
-// const this.imgPath = 'https://storage.googleapis.com/learnjs-data/model-builder/mnist_images.png';
-// const this.labelPath = 'https://storage.googleapis.com/learnjs-data/model-builder/mnist_labels_uint8';
-
+// this file has been modified by weston bailey
+// the original work was retrived from: https://raw.githubusercontent.com/tensorflow/tfjs-examples/master/mnist-core/data.js
 
 class MnistData {
   constructor(args) {

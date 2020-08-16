@@ -26,6 +26,17 @@ let state = {
   }
 }
 
+// TODOS 
+
+// port another model
+
+// resize displayed images
+
+// graph data
+
+// 
+
+
 
 async function init() {
   // load data
@@ -53,53 +64,31 @@ async function init() {
   console.log([x_test, y_test])
 
   // create model
-  model = modelCreateArbitraryHidden()
+  model = createArbitraryDenseModel()
 
   // fit model
   // model, history = fitModel(model, x_train, y_train)
-  model.fit(x_train, y_train, {
-    batchSize: state.batchSize,
-    validationData: [x_test, y_test],
-    epochs: state.epochs,
-    shuffle: true,
-    callbacks: { onBatchEnd }
-  })
-  .then(info => {
-    console.log('Final accuracy', info.history.acc);
-    console.log(model)
-    console.log(info)
-    modelPredict(numbersData)
-  });
-  // console.log(model)
-  // console.log(history)
-  // test model
-  
-  // cast prediction
-  
-  // ????????
-  
-  // PROFIT!!!
+  model, info = await fitModel(model, x_train, y_train, x_test, y_test)
+
+  console.log('Final accuracy', info.history.acc);
+  console.log(model)
+  console.log(info)
+  modelPredict([x_test, y_test])
   
 }
 
 function modelPredict(data){
   // get test data
-  const [x_test, y_test] = formatTestData(data)  
+  const [x_test, y_test] = data
   // x_predict = x_test.slice([0, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1])
   let rand = Math.floor(Math.random() * 1000)
   x_predict = x_test.slice([rand, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1])
   y_predict = y_test.slice([rand, 0], [1, state.outputClasses]).argMax(-1)
-  // y_predict = y_predict.arraySync().argMax(-1)
 
-  console.log(y_predict)
-
-  // console.log(x_predict)
-  // console.log(y_predict)
 
   const preds = model.predict(x_predict).argMax(-1);
   console.log(preds)
 
-  // preds.print()
   console.log(preds.arraySync()) // this is the prediction value
 
   // show prediction on canvas
@@ -112,40 +101,46 @@ function modelPredict(data){
   canvas.style = 'margin: 4px;';
   x_predict = x_predict.reshape([28, 28, 1]);
   tf.browser.toPixels(x_predict, canvas)
-  .then( () => {
-    
-  })
 }
 
 function formatTestData(data) {
-
+  // iamges
   let x_test = tf.tensor4d(data.testImages, [data.testImages.length / state.imageSize, state.imageHeight, state.imageWidth, 1])
-  
+  // labels
   let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / state.outputClasses, state.outputClasses])
-  
   return [x_test, y_test]
 }
 
 function formatTrainData(data) {
-
+  // images
   let x_train = tf.tensor4d(data.trainImages, [data.trainImages.length / state.imageSize, state.imageHeight, state.imageWidth, 1])
-  
+  // labels
   let y_train = tf.tensor2d(data.trainLabels, [data.trainLabels.length / state.outputClasses, state.outputClasses])
-  
   return [x_train, y_train]
 }
 
+// called at end of fitting epochs
 function onBatchEnd(batch, logs) {
   var show = document.getElementById("learn-logs")
   if(logs.batch % 10 == 0) show.innerText = `batch: ${logs.batch}\nloss: ${logs.loss}\naccuracy: ${logs.acc}`
   console.log('logs', logs);
 }
 
-
-async function fitModel(model, x_train, y_train) {
+// train model against data
+async function fitModel(model, x_train, y_train, x_test, y_test) {
+  info = await model.fit(x_train, y_train, {
+    batchSize: state.batchSize,
+    validationData: [x_test, y_test],
+    epochs: state.epochs,
+    shuffle: true,
+    callbacks: { onBatchEnd }
+  });
+  return model, info
 }
 
-function modelCreateArbitraryHidden() {
+// create a sequential desnse model with an arbitrary
+// amount of hidden layers
+function createArbitraryDenseModel() {
   //Create the model
   const model = tf.sequential();
   // add input layer 
