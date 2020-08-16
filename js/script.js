@@ -1,26 +1,47 @@
 document.addEventListener('DOMContentLoaded', () => init())
 
 let state = {
-  hiddenLayers: 10,
+  hiddenLayers: 1,
   inputShape: [28, 28, 1],
   outputClasses: 10,
-  epochs: 10,
+  epochs: 1,
   batchSize: 128,
-  predictionIndex: 1
+  predictionIndex: 1,
+  trainDataSize: 55000,
+  testDataSize: 15000
 }
 
 console.log('hello front end')
 async function init() {
   // load data
   const data = await getData()
-
+  console.log(data)
   // groom data
+  const [x_train, y_train] = formatTrainData(data)  
+  const [x_test, y_test] = formatTestData(data)  
+
+  console.log([x_train, y_train])
+  console.log([x_test, y_test])
 
   // create model
   model = modelCreateArbitraryHidden()
 
   // fit model
-
+  // model, history = fitModel(model, x_train, y_train)
+  model.fit(x_train, y_train, {
+    batchSize: state.batchSize,
+    validationData: [x_test, y_test],
+    epochs: state.epochs,
+    shuffle: true,
+    callbacks: { onBatchEnd }
+  })
+  .then(info => {
+    console.log('Final accuracy', info.history.acc);
+    console.log(model)
+    console.log(info)
+  });
+  // console.log(model)
+  // console.log(history)
   // test model
 
   // cast prediction
@@ -29,6 +50,47 @@ async function init() {
 
   // PROFIT!!!
   
+}
+
+function formatTestData(data) {
+  const IMAGE_H = 28
+  const IMAGE_W = 28
+  const IMAGE_SIZE = IMAGE_H * IMAGE_W
+  const N_CLASSES = 10
+  const N_DATA  = 65000
+
+  let x_test = tf.tensor4d(data.testImages, [data.testImages.length / IMAGE_SIZE, IMAGE_H, IMAGE_W, 1])
+
+  let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / N_CLASSES, N_CLASSES])
+
+  return [x_test, y_test]
+}
+
+function formatTrainData(data) {
+
+  const IMAGE_H = 28
+  const IMAGE_W = 28
+  const IMAGE_SIZE = IMAGE_H * IMAGE_W
+  const N_CLASSES = 10
+  const N_DATA  = 65000
+
+  let x_test = tf.tensor4d(data.testImages, [data.testImages.length / IMAGE_SIZE, IMAGE_H, IMAGE_W, 1])
+
+  let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / N_CLASSES, N_CLASSES])
+
+  let x_train = tf.tensor4d(data.trainImages, [data.trainImages.length / IMAGE_SIZE, IMAGE_H, IMAGE_W, 1])
+
+  let y_train = tf.tensor2d(data.trainLabels, [data.trainLabels.length / N_CLASSES, N_CLASSES])
+
+  return [x_train, y_train]
+}
+
+function onBatchEnd(batch, logs) {
+  console.log('logs', logs);
+}
+
+
+async function fitModel(model, x_train, y_train) {
 }
 
 function modelCreateArbitraryHidden() {
@@ -43,7 +105,7 @@ function modelCreateArbitraryHidden() {
   // softmax output layer
   model.add(tf.layers.dense({ units: state.outputClasses, activation: 'softmax' })); 
   // compile
-  model.compile({loss: 'categoricalCrossentropy', optimizer: 'adam'});
+  model.compile({loss: 'categoricalCrossentropy', optimizer: 'adam', metrics:['accuracy']});
   model.summary()
   return model
 }
