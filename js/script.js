@@ -8,147 +8,139 @@ let state = {
   batchSize: 128,
   predictionIndex: 1,
   trainDataSize: 55000,
-  testDataSize: 15000
-
+  testDataSize: 15000,
+  imageHeight: 28,
+  imageWidth: 28,
+  imageSize: 28 * 28,
+  numbers: {
+    dataSetLength: 65000,
+    trainTestRatio: 5 / 6,
+    imgPath: 'https://storage.googleapis.com/learnjs-data/model-builder/mnist_images.png',
+    labelPath: 'https://storage.googleapis.com/learnjs-data/model-builder/mnist_labels_uint8',
+  },
+  fashion: {
+    dataSetLength: 70000,
+    trainTestRatio: 6 / 7,
+    imgPath: 'https://storage.googleapis.com/learnjs-data/model-builder/fashion_mnist_images.png',
+    labelPath: 'https://storage.googleapis.com/learnjs-data/model-builder/fashion_mnist_labels_uint8'
+  }
 }
 
-let globalData;
+// TODOS 
 
-console.log('hello front end')
+// port another model
+
+// resize displayed images
+
+// graph data
+
+// 
+
+
+
 async function init() {
-  const IMAGE_H = 28
-  const IMAGE_W = 28
-  const IMAGE_SIZE = IMAGE_H * IMAGE_W
-  const N_CLASSES = 10
-  const N_DATA  = 65000
   // load data
-  const data = await getData()
-  globalData = data
-  console.log(data)
+  const numbersData = await getData({
+    imageSize: state.imageSize,
+    outputClasses: state.outputClasses,
+    dataSetLength: state.numbers.dataSetLength,
+    trainTestRatio: state.numbers.trainTestRatio,
+    imgPath: state.numbers.imgPath,
+    labelPath: state.numbers.labelPath
+  });
+  const fashionData = await getData({
+    imageSize: state.imageSize,
+    outputClasses: state.outputClasses,
+    dataSetLength: state.fashion.dataSetLength,
+    trainTestRatio: state.fashion.trainTestRatio,
+    imgPath: state.fashion.imgPath,
+    labelPath: state.fashion.labelPath
+  });
   // groom data
-  const [x_train, y_train] = formatTrainData(data)  
-  const [x_test, y_test] = formatTestData(data)  
+  const [x_train, y_train] = formatTrainData(numbersData)  
+  const [x_test, y_test] = formatTestData(numbersData)  
 
   console.log([x_train, y_train])
   console.log([x_test, y_test])
 
   // create model
-  model = modelCreateArbitraryHidden()
+  model = createArbitraryDenseModel()
 
   // fit model
   // model, history = fitModel(model, x_train, y_train)
-  model.fit(x_train, y_train, {
-    batchSize: state.batchSize,
-    validationData: [x_test, y_test],
-    epochs: state.epochs,
-    shuffle: true,
-    callbacks: { onBatchEnd }
-  })
-  .then(info => {
-    console.log('Final accuracy', info.history.acc);
-    console.log(model)
-    console.log(info)
-    modelPredict(data)
-  });
-  // console.log(model)
-  // console.log(history)
-  // test model
-  
-  // cast prediction
-  
-  // ????????
-  
-  // PROFIT!!!
+  model, info = await fitModel(model, x_train, y_train, x_test, y_test)
+
+  console.log('Final accuracy', info.history.acc);
+  console.log(model)
+  console.log(info)
+  modelPredict([x_test, y_test])
   
 }
 
 function modelPredict(data){
-  const [x_test, y_test] = formatTestData(data)  
-      // cast prediction
-      const IMAGE_H = 28
-      const IMAGE_W = 28
-      const IMAGE_SIZE = IMAGE_H * IMAGE_W
-      const N_CLASSES = 10
-      const N_DATA  = 65000
-      // load data
+  // get test data
+  const [x_test, y_test] = data
+  // x_predict = x_test.slice([0, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1])
+  let rand = Math.floor(Math.random() * 1000)
+  x_predict = x_test.slice([rand, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1])
+  y_predict = y_test.slice([rand, 0], [1, state.outputClasses]).argMax(-1)
 
 
-    // x_predict = x_test.slice([0, 0, 0, 0], [1, IMAGE_H, IMAGE_W, 1])
-    let rand = Math.floor(Math.random() * 1000)
-    x_predict = x_test.slice([rand, 0, 0, 0], [1, IMAGE_H, IMAGE_W, 1])
-    y_predict = y_test.slice([rand, 0], [1, N_CLASSES]).argMax(-1)
-    // y_predict = y_predict.arraySync().argMax(-1)
+  const preds = model.predict(x_predict).argMax(-1);
+  console.log(preds)
 
-    console.log(y_predict)
+  console.log(preds.arraySync()) // this is the prediction value
 
-    // console.log(x_predict)
-    // console.log(y_predict)
-
-    const preds = model.predict(x_predict).argMax(-1);
-    console.log(preds)
-
-    // preds.print()
-    console.log(preds.arraySync()) // this is the prediction value
-
-    // show prediction on canvas
-    var canvas = document.getElementById('predict')
-    var p = document.getElementById("pedict-num")
-    p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${y_predict.arraySync()}`
-    ctx = canvas.getContext('2d')
-    canvas.width = 28;
-    canvas.height = 28;
-    canvas.style = 'margin: 4px;';
-    x_predict = x_predict.reshape([28, 28, 1]);
-    tf.browser.toPixels(x_predict, canvas)
-    .then( () => {
-      
-    })
+  // show prediction on canvas
+  var canvas = document.getElementById('predict')
+  var p = document.getElementById("pedict-num")
+  p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${y_predict.arraySync()}`
+  ctx = canvas.getContext('2d')
+  canvas.width = 28;
+  canvas.height = 28;
+  canvas.style = 'margin: 4px;';
+  x_predict = x_predict.reshape([28, 28, 1]);
+  tf.browser.toPixels(x_predict, canvas)
 }
 
 function formatTestData(data) {
-  const IMAGE_H = 28
-  const IMAGE_W = 28
-  const IMAGE_SIZE = IMAGE_H * IMAGE_W
-  const N_CLASSES = 10
-  const N_DATA  = 65000
-  
-  let x_test = tf.tensor4d(data.testImages, [data.testImages.length / IMAGE_SIZE, IMAGE_H, IMAGE_W, 1])
-  
-  let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / N_CLASSES, N_CLASSES])
-  
+  // iamges
+  let x_test = tf.tensor4d(data.testImages, [data.testImages.length / state.imageSize, state.imageHeight, state.imageWidth, 1])
+  // labels
+  let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / state.outputClasses, state.outputClasses])
   return [x_test, y_test]
 }
 
 function formatTrainData(data) {
-  
-  const IMAGE_H = 28
-  const IMAGE_W = 28
-  const IMAGE_SIZE = IMAGE_H * IMAGE_W
-  const N_CLASSES = 10
-  const N_DATA  = 65000
-  
-  let x_test = tf.tensor4d(data.testImages, [data.testImages.length / IMAGE_SIZE, IMAGE_H, IMAGE_W, 1])
-  
-  let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / N_CLASSES, N_CLASSES])
-  
-  let x_train = tf.tensor4d(data.trainImages, [data.trainImages.length / IMAGE_SIZE, IMAGE_H, IMAGE_W, 1])
-  
-  let y_train = tf.tensor2d(data.trainLabels, [data.trainLabels.length / N_CLASSES, N_CLASSES])
-  
+  // images
+  let x_train = tf.tensor4d(data.trainImages, [data.trainImages.length / state.imageSize, state.imageHeight, state.imageWidth, 1])
+  // labels
+  let y_train = tf.tensor2d(data.trainLabels, [data.trainLabels.length / state.outputClasses, state.outputClasses])
   return [x_train, y_train]
 }
 
+// called at end of fitting epochs
 function onBatchEnd(batch, logs) {
   var show = document.getElementById("learn-logs")
   if(logs.batch % 10 == 0) show.innerText = `batch: ${logs.batch}\nloss: ${logs.loss}\naccuracy: ${logs.acc}`
   console.log('logs', logs);
 }
 
-
-async function fitModel(model, x_train, y_train) {
+// train model against data
+async function fitModel(model, x_train, y_train, x_test, y_test) {
+  info = await model.fit(x_train, y_train, {
+    batchSize: state.batchSize,
+    validationData: [x_test, y_test],
+    epochs: state.epochs,
+    shuffle: true,
+    callbacks: { onBatchEnd }
+  });
+  return model, info
 }
 
-function modelCreateArbitraryHidden() {
+// create a sequential desnse model with an arbitrary
+// amount of hidden layers
+function createArbitraryDenseModel() {
   //Create the model
   const model = tf.sequential();
   // add input layer 
@@ -165,8 +157,8 @@ function modelCreateArbitraryHidden() {
   return model
 }
 
-async function getData() {  
-  const data = new MnistData();
+async function getData(args) {  
+  const data = new MnistData(args);
   await data.load()
   return data
 }

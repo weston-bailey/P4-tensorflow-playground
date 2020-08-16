@@ -15,33 +15,31 @@
  * =============================================================================
  */
 
-const IMAGE_SIZE = 784;
-const NUM_CLASSES = 10;
-const NUM_DATASET_ELEMENTS = 65000;
+// this file has been modified by weston bailey
+// the original work was retrived from: https://raw.githubusercontent.com/tensorflow/tfjs-examples/master/mnist-core/data.js
 
-const TRAIN_TEST_RATIO = 5 / 6;
-
-const NUM_TRAIN_ELEMENTS = Math.floor(TRAIN_TEST_RATIO * NUM_DATASET_ELEMENTS);
-const NUM_TEST_ELEMENTS = NUM_DATASET_ELEMENTS - NUM_TRAIN_ELEMENTS;
-
-const MNIST_IMAGES_SPRITE_PATH =
-    'https://storage.googleapis.com/learnjs-data/model-builder/mnist_images.png';
-const MNIST_LABELS_PATH =
-    'https://storage.googleapis.com/learnjs-data/model-builder/mnist_labels_uint8';
-
-/**
- * A class that fetches the sprited MNIST dataset and returns shuffled batches.
- *
- * NOTE: This will get much easier. For now, we do data fetching and
- * manipulation manually.
- */
 class MnistData {
-  constructor() {
-    this.shuffledTrainIndex = 0;
-    this.shuffledTestIndex = 0;
+  constructor(args) {
+    this.imageSize = args.imageSize;
+    this.outputClasses = args.outputClasses;
+    this.dataSetLength = args.dataSetLength;
+    this.trainTestRatio = args.trainTestRatio;
+    this.imgPath = args.imgPath;
+    this.labelPath = args.labelPath;
+    this.datasetImages = null;
+    this.datasetLabels = null;
+    this.trainIndices = null;
+    this.testIndices = null;
+    this.trainImages = null;
+    this.testImages = null;
+    this.trainLabels = null;
+    this.testLabels = null;
   }
 
   async load() {
+
+    const NUM_TRAIN_ELEMENTS = Math.floor(this.trainTestRatio * this.dataSetLength);
+    const NUM_TEST_ELEMENTS = this.dataSetLength - NUM_TRAIN_ELEMENTS;
     // Make a request for the MNIST sprited image.
     const img = new Image();
     const canvas = document.createElement('canvas');
@@ -53,16 +51,16 @@ class MnistData {
         img.height = img.naturalHeight;
 
         const datasetBytesBuffer =
-            new ArrayBuffer(NUM_DATASET_ELEMENTS * IMAGE_SIZE * 4);
+            new ArrayBuffer(this.dataSetLength * this.imageSize * 4);
 
         const chunkSize = 5000;
         canvas.width = img.width;
         canvas.height = chunkSize;
 
-        for (let i = 0; i < NUM_DATASET_ELEMENTS / chunkSize; i++) {
+        for (let i = 0; i < this.dataSetLength / chunkSize; i++) {
           const datasetBytesView = new Float32Array(
-              datasetBytesBuffer, i * IMAGE_SIZE * chunkSize * 4,
-              IMAGE_SIZE * chunkSize);
+              datasetBytesBuffer, i * this.imageSize * chunkSize * 4,
+              this.imageSize * chunkSize);
           ctx.drawImage(
               img, 0, i * chunkSize, img.width, chunkSize, 0, 0, img.width,
               chunkSize);
@@ -79,10 +77,10 @@ class MnistData {
 
         resolve();
       };
-      img.src = MNIST_IMAGES_SPRITE_PATH;
+      img.src = this.imgPath;
     });
 
-    const labelsRequest = fetch(MNIST_LABELS_PATH);
+    const labelsRequest = fetch(this.labelPath);
     const [imgResponse, labelsResponse] =
         await Promise.all([imgRequest, labelsRequest]);
 
@@ -94,51 +92,9 @@ class MnistData {
     this.testIndices = tf.util.createShuffledIndices(NUM_TEST_ELEMENTS);
 
     // Slice the the images and labels into train and test sets.
-    this.trainImages =
-        this.datasetImages.slice(0, IMAGE_SIZE * NUM_TRAIN_ELEMENTS);
-    this.testImages = this.datasetImages.slice(IMAGE_SIZE * NUM_TRAIN_ELEMENTS);
-    this.trainLabels =
-        this.datasetLabels.slice(0, NUM_CLASSES * NUM_TRAIN_ELEMENTS);
-    this.testLabels =
-        this.datasetLabels.slice(NUM_CLASSES * NUM_TRAIN_ELEMENTS);
-  }
-
-  nextTrainBatch(batchSize) {
-    return this.nextBatch(
-        batchSize, [this.trainImages, this.trainLabels], () => {
-          this.shuffledTrainIndex =
-              (this.shuffledTrainIndex + 1) % this.trainIndices.length;
-          return this.trainIndices[this.shuffledTrainIndex];
-        });
-  }
-
-  nextTestBatch(batchSize) {
-    return this.nextBatch(batchSize, [this.testImages, this.testLabels], () => {
-      this.shuffledTestIndex =
-          (this.shuffledTestIndex + 1) % this.testIndices.length;
-      return this.testIndices[this.shuffledTestIndex];
-    });
-  }
-
-  nextBatch(batchSize, data, index) {
-    const batchImagesArray = new Float32Array(batchSize * IMAGE_SIZE);
-    const batchLabelsArray = new Uint8Array(batchSize * NUM_CLASSES);
-
-    for (let i = 0; i < batchSize; i++) {
-      const idx = index();
-
-      const image =
-          data[0].slice(idx * IMAGE_SIZE, idx * IMAGE_SIZE + IMAGE_SIZE);
-      batchImagesArray.set(image, i * IMAGE_SIZE);
-
-      const label =
-          data[1].slice(idx * NUM_CLASSES, idx * NUM_CLASSES + NUM_CLASSES);
-      batchLabelsArray.set(label, i * NUM_CLASSES);
-    }
-
-    const xs = tf.tensor2d(batchImagesArray, [batchSize, IMAGE_SIZE]);
-    const labels = tf.tensor2d(batchLabelsArray, [batchSize, NUM_CLASSES]);
-
-    return {xs, labels};
+    this.trainImages = this.datasetImages.slice(0, this.imageSize * NUM_TRAIN_ELEMENTS);
+    this.testImages = this.datasetImages.slice(this.imageSize * NUM_TRAIN_ELEMENTS);
+    this.trainLabels = this.datasetLabels.slice(0, this.outputClasses * NUM_TRAIN_ELEMENTS);
+    this.testLabels = this.datasetLabels.slice(this.outputClasses * NUM_TRAIN_ELEMENTS);
   }
 }
