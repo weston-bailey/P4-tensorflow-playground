@@ -4,7 +4,8 @@ let state = {
   hiddenLayers: 1,
   inputShape: [28, 28, 1],
   outputClasses: 10,
-  epochs: 1,
+  epochs: 7,
+  units: 128,
   batchSize: 128,
   predictionIndex: 1,
   trainDataSize: 55000,
@@ -34,7 +35,7 @@ let state = {
 
 // graph data
 
-// 
+// add canvas to draw on
 
 
 
@@ -65,6 +66,7 @@ async function init() {
 
   // create model
   model = createArbitraryDenseModel()
+  // model = createConvNetModel()
 
   // fit model
   // model, history = fitModel(model, x_train, y_train)
@@ -104,7 +106,7 @@ function modelPredict(data){
 }
 
 function formatTestData(data) {
-  // iamges
+  // iamges 
   let x_test = tf.tensor4d(data.testImages, [data.testImages.length / state.imageSize, state.imageHeight, state.imageWidth, 1])
   // labels
   let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / state.outputClasses, state.outputClasses])
@@ -137,22 +139,50 @@ async function fitModel(model, x_train, y_train, x_test, y_test) {
   });
   return model, info
 }
+// Creates a convolution nueral network model
+function createConvNetModel(){
+  //Create the model
+  const model = tf.sequential();
+  // 2d convolution input
+  model.add(tf.layers.conv2d({ inputShape: state.inputShape, filters: 32, kernelSize: [3, 3], activation: 'relu'}))
+  // pooling layer to downsample 
+  model.add(tf.layers.maxPooling2d({ poolSize: [2, 2] }))
+  // 2d convolution with double the filters
+  model.add(tf.layers.conv2d({ filters: 32, kernelSize: [3, 3], activation: 'relu'}))
+  // pooling layer to downsample 
+  model.add(tf.layers.maxPooling2d({ poolSize: [2, 2] }))
+  // flatten layer before output
+  model.add(tf.layers.flatten({}));
+  // add hidden layers
+  for(let i = 0; i < state.hiddenLayers; i++){
+    model.add(tf.layers.dense({ units: state.units, activation: 'relu' })); 
+  }
+  // softmax output layer
+  model.add(tf.layers.dense({ units: state.outputClasses, activation: 'softmax' })); 
+  // compile
+  model.compile({loss: 'categoricalCrossentropy', optimizer: 'adam', metrics:['accuracy']});
+  // summary in console
+  model.summary()
+
+  return model
+}
 
 // create a sequential desnse model with an arbitrary
 // amount of hidden layers
 function createArbitraryDenseModel() {
   //Create the model
   const model = tf.sequential();
-  // add input layer 
+  // add input layer that flattens shape
   model.add(tf.layers.flatten({ inputShape: state.inputShape }));
   // add hidden layers
   for(let i = 0; i < state.hiddenLayers; i++){
-    model.add(tf.layers.dense({ units: 128, activation: 'relu' })); 
+    model.add(tf.layers.dense({ units: state.units, activation: 'relu' })); 
   }
   // softmax output layer
   model.add(tf.layers.dense({ units: state.outputClasses, activation: 'softmax' })); 
   // compile
   model.compile({loss: 'categoricalCrossentropy', optimizer: 'adam', metrics:['accuracy']});
+  // summary in console
   model.summary()
   return model
 }
