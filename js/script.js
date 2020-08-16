@@ -1,13 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => init())
 
 console.log('hello front end')
-function init() {
+async function init() {
   model = testModel()
   console.log(model)
   console.log(tf)
-  console.log(tfvis)
-  console.log(MnistData)
-  run()
+  const data = await getData()
+  console.log(data)
 }
 
 function testModel() {
@@ -21,6 +20,31 @@ function testModel() {
   return model
 }
 
+async function getData() {  
+  const data = new MnistData();
+  await data.load()
+  return data
+}
+
+
+// load data
+
+// groom data
+
+// create model
+
+// fit model
+
+// test model
+
+// cast prediction
+
+// ????????
+
+// PROFIT!!!
+
+/* CODE GRAVEYARD 
+
 async function run() {  
   const data = new MnistData();
   await data.load();
@@ -29,8 +53,7 @@ async function run() {
 
 async function showExamples(data) {
   // Create a container in the visor
-  const surface =
-    tfvis.visor().surface({ name: 'Input Data Examples', tab: 'Input Data'});  
+  const surface = tfvis.visor().surface({ name: 'Input Data Examples', tab: 'Input Data'});  
 
   // Get the examples
   const examples = data.nextTestBatch(20);
@@ -56,18 +79,34 @@ async function showExamples(data) {
   }
 }
 
-// load data
+document.addEventListener('DOMContentLoaded', () => {
+  const arr_x = [-1, -2,  0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 6]
+  const arr_y = [-1, -2, -1, 1, 1, 0, 2, 3, 1, 3, 2, 4, 3, 6, 5]
 
-// groom data
+ function weave(arrX, arrY) { 
+    return arrX.map((x, i) => { 
+      return { 'x':x, 'y':arrY[i] }
+    }); 
+  }
+  const toy_data = weave(arr_x, arr_y)
+  console.log(toy_data)
+  const label = 'toy data'
 
-// create model
+  // CHART.JS VIS
+  var ctx = document.getElementById('scatter-chartjs')
+  var scatterChart = new Chart(ctx, {
+      type: 'bubble',
+      data: {
+          datasets: [{
+              data: toy_data,
+              label: label,
+              backgroundColor: 'blue'}]
+      },
+      options: {
+          responsive: false
+      }
+  })
 
-// fit model
+})
 
-// test model
-
-// cast prediction
-
-// ????????
-
-// PROFIT!!!
+*/
