@@ -12,6 +12,8 @@ CLEAR_INPUT_CANVAS.addEventListener('click', () => { inputCanvas.clear() })
 
 // graph data
 
+
+
 let inputCanvas
 
 let model
