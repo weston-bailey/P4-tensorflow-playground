@@ -1,17 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => init());
-castToImage = document.getElementById("cast-to-image")
-castToImage.addEventListener('click', () => { inputCanvas.castToImage() })
-
-const CLEAR_INPUT_CANVAS = document.getElementById("clear-input-canvas")
-CLEAR_INPUT_CANVAS.addEventListener('click', () => { inputCanvas.clear() })
+/* ~~~~~~~~~~~~~~~~~~~~~~ event listeners ~~~~~~~~~~~~~~~~~~~~~~ */
+// model creation
+const MODEL_SELECT = document.getElementById('model-select');
+const UNITS_NUMBER = document.getElementById('units-number');
+const HIDDEN_LAYERS_NUMBER = document.getElementById('hidden-layers-number');
+const MODEL_CREATE_DESTROY = document.getElementById('model-create-destory');
+MODEL_SELECT.addEventListener('change', e => handleModelSelect(e));
+UNITS_NUMBER.addEventListener('change', e => handleUnitsNumber(e));
+HIDDEN_LAYERS_NUMBER.addEventListener('change', e => handleHiddenLayersNumber(e))
+MODEL_CREATE_DESTROY.addEventListener('click', () => handleModelCreateDestroy());
+// input canvas 
+const CAST_TO_IMAGE = document.getElementById("cast-to-image");
+CAST_TO_IMAGE.addEventListener('click', () => inputCanvas.castToImage());
+const CLEAR_INPUT_CANVAS = document.getElementById("clear-input-canvas");
+CLEAR_INPUT_CANVAS.addEventListener('click', () => inputCanvas.clear());
 
 
 // TODOS 
 
 // resize displayed images
 
-// graph data
-
+// graph dat
 
 
 let inputCanvas
@@ -19,57 +28,57 @@ let inputCanvas
 let model
 
 async function init() {
-  inputCanvas = new InputCanvas({
-    canvas: 'input-canvas',
-    width: 400,
-    height: 400,
-    bgColor: '#000000',
-    strokeStyle: '#FFFFFF'
-  })
-  inputCanvas.init()
-  // load data
-  const numbersData = await getData({
-    imageSize: state.imageSize,
-    outputClasses: state.outputClasses,
-    dataSetLength: state.numbers.dataSetLength,
-    trainTestRatio: state.numbers.trainTestRatio,
-    imgPath: state.numbers.imgPath,
-    labelPath: state.numbers.labelPath
-  });
-  const fashionData = await getData({
-    imageSize: state.imageSize,
-    outputClasses: state.outputClasses,
-    dataSetLength: state.fashion.dataSetLength,
-    trainTestRatio: state.fashion.trainTestRatio,
-    imgPath: state.fashion.imgPath,
-    labelPath: state.fashion.labelPath
-  });
-  // groom data
-  state.numbers.data.train = [xTrainNumbers, yTrainNumbers] = formatTrainData(numbersData);
-  state.numbers.data.test = [xTestNumbers, yTestNumbers] = formatTestData(numbersData);
+  // inputCanvas = new InputCanvas({
+  //   canvas: 'input-canvas',
+  //   width: 400,
+  //   height: 400,
+  //   bgColor: '#000000',
+  //   strokeStyle: '#FFFFFF'
+  // })
+  // inputCanvas.init()
+  // // load data
+  // const numbersData = await getData({
+  //   imageSize: state.imageSize,
+  //   outputClasses: state.outputClasses,
+  //   dataSetLength: state.numbers.dataSetLength,
+  //   trainTestRatio: state.numbers.trainTestRatio,
+  //   imgPath: state.numbers.imgPath,
+  //   labelPath: state.numbers.labelPath
+  // });
+  // const fashionData = await getData({
+  //   imageSize: state.imageSize,
+  //   outputClasses: state.outputClasses,
+  //   dataSetLength: state.fashion.dataSetLength,
+  //   trainTestRatio: state.fashion.trainTestRatio,
+  //   imgPath: state.fashion.imgPath,
+  //   labelPath: state.fashion.labelPath
+  // });
+  // // groom data
+  // state.numbers.data.train = [xTrainNumbers, yTrainNumbers] = formatTrainData(numbersData);
+  // state.numbers.data.test = [xTestNumbers, yTestNumbers] = formatTestData(numbersData);
 
-  state.fashion.data.train = [xTrainFashion, yTrainFashion] = formatTrainData(fashionData);
-  state.fashion.data.test = [xTestFashion, yTestFashion] = formatTestData(fashionData);
+  // state.fashion.data.train = [xTrainFashion, yTrainFashion] = formatTrainData(fashionData);
+  // state.fashion.data.test = [xTestFashion, yTestFashion] = formatTestData(fashionData);
 
-  const [xTrain, yTrain] = state.fashion.data.train;
-  const [xTest, yTest] = state.fashion.data.test;
+  // const [xTrain, yTrain] = state.fashion.data.train;
+  // const [xTest, yTest] = state.fashion.data.test;
   // console.log([xTrainNumbers, yTrainNumbers])
   // console.log([xTestNumbers, yTestNumbers])
   // console.log([xTrain, yTrain])
   // console.log([xTest, yTest])
 
   // create model
-  model = createArbitraryDenseModel()
+  // model = createArbitraryDenseModel()
   // model = createConvNetModel()
 
   // fit model
   // model, history = fitModel(model, xTrainNumbers, yTrainNumbers)
-  model, info = await fitModel(model, xTrain, yTrain, xTest, yTest)
+  // model, info = await fitModel(model, xTrain, yTrain, xTest, yTest)
 
-  console.log('Final accuracy', info.history.acc);
-  console.log(model)
-  console.log(info)
-  modelPredict(model, [xTest, yTest])
+  // console.log('Final accuracy', info.history.acc);
+  // console.log(model)
+  // console.log(info)
+  // modelPredict(model, [xTest, yTest])
   
 }
 

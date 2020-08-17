@@ -18,6 +18,34 @@
 <body>
   <h1>🤖 Hello World 🤖</h1>
   <h3>I'm learning....</h3>
+
+  <!-- TODO add select data set -->
+
+  <!-- select model type -->
+  <div class="form-group">
+
+    <label for="model-select" class="custom-control-input">Select Model</label>
+    <select class="form-control custom-select" id="model-select">
+      <option selected value="dense">dense</option>
+      <option value="convolutional">convolutional</option>
+    </select>
+
+    <label for="units-number" class="custom-control-input">Dense Layer Units</label>
+    <input class="form-control" type="number" value="128" min="1" step="1" id="units-number">
+
+    <label for="hidden-layers-number" class="custom-control-input">Hidden Layers</label>
+    <input class="form-control" type="number" value="1" min="1" step="1" id="hidden-layers-number">
+
+    <button type="button" class="form-control btn btn-primary" id="model-create-destory">Create Model</button>
+  </div>
+
+<!-- TODO add model info table -->
+  <!-- TODO add training input -->
+    <!-- TODO add batch size input -->
+    <!-- TODO add epochs amount input -->
+    <!-- TODO add start epochs button -->
+    <!-- TODO add pause epochs button -->
+
   <p id="learn-logs"></p>
   <!-- <canvas id="scatter-chartjs" height="400" width="500"></canvas> -->
   <div id="predict">
