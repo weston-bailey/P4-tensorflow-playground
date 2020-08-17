@@ -4,11 +4,14 @@ castToImage.addEventListener('click', (e) => { getImg(e) })
 function getImg(e) {
   inputCanvas.castToImage()
 }
-clearInputCanvas = document.getElementById("clear-input-canvas")
-castToImage.addEventListener('click', (e) => { clearCanvas(e) })
-function clearCanvas(e) {
-  inputCanvas.clear()
-}
+const CLEAR_INPUT_CANVAS = document.getElementById("clear-input-canvas")
+CLEAR_INPUT_CANVAS.addEventListener('click',() => { inputCanvas.clear() })
+
+
+const PRINT = document.getElementById("print")
+PRINT.addEventListener('click',() => { tester.printMessage()} )
+const ARROW_PRINT = document.getElementById("arrow-print")
+ARROW_PRINT.addEventListener('click',() => { tester.arrowPrint()} )
 
 let state = {
   hiddenLayers: 1,
@@ -38,7 +41,26 @@ let state = {
   }
 }
 
-let inputCanvas
+class TestClass {
+  constructor(message) {
+    this.message = message;
+  }
+  
+ arrowPrint = () => {
+    this
+    console.log(this.message)
+  }
+
+  printMessage() {
+    this
+    console.log(this, this.message)
+  }
+
+}
+
+let tester = new TestClass('hola')
+
+
 // TODOS 
 
 // resize displayed images
@@ -87,7 +109,6 @@ class InputCanvas {
   // flag dragging
   mouseUp(){
     this.dragging = false;
-    this.castToImage()
   }
   // draw from prev X/Y to current X/Y linecap = 'round' is the secret
   draw(){
@@ -100,7 +121,7 @@ class InputCanvas {
     this.ctx.stroke();
   }
   // reset 
-  clear(){
+  clear() {
     this.ctx.fillStyle = this.bgColor;
     this.ctx.fillRect(0, 0, this.width, this.height);
   }
@@ -117,12 +138,14 @@ class InputCanvas {
       return  tf.image.resizeBilinear(shape, [28, 28]);
     })
     modelPredictCanvas(imageTensor)
-    this.clear();
+    console.log('called cast')
     // console.log(imageTensor)
-    
   }
-
 }
+
+let inputCanvas
+
+let model
 
 async function init() {
   inputCanvas = new InputCanvas({
@@ -131,7 +154,9 @@ async function init() {
     height: 400,
     bgColor: '#000000',
     strokeStyle: '#FFFFFF'
-  }).init()
+  })
+  inputCanvas.init()
+  console.log(inputCanvas)
   // load data
   const numbersData = await getData({
     imageSize: state.imageSize,
@@ -171,16 +196,19 @@ async function init() {
   
 }
 
-function modelPredictCanvas(imageTensor){
+function modelPredictCanvas(model, imageTensor){
+
+  console.log(imageTensor)
   const testImage = imageTensor;
   const preds = model.predict(testImage).argMax(-1);
   console.log(preds)
+  console.log(model)
   let p = document.getElementById("pedict-num")
   p.innerText = `I predicted that the image your drew is a ${preds.arraySync()}`
-  imageTensor.dispose()
+  // imageTensor.dispose()
 }
 
-function modelPredict(data){
+function modelPredict(model, data){
   // get test data
   const [x_test, y_test] = data
   // x_predict = x_test.slice([0, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1])
@@ -248,6 +276,7 @@ async function fitModel(model, x_train, y_train, x_test, y_test) {
   });
   return model, info
 }
+
 // Creates a convolution nueral network model
 function createConvNetModel(){
   //Create the model
