@@ -1,14 +1,17 @@
 * {
   color: #39FF14;
-  background-color: #000000;
+  background-color:grey;
   text-align: center;
 }
 
 body {
-  background-color: #000000;
+  background-color: grey;
 }
 
 h1, h3 {
   color: #39FF14;
 }
 
+.prediction-canvas {
+  width: "300"
+}

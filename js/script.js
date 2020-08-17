@@ -4,9 +4,9 @@ let state = {
   hiddenLayers: 1,
   inputShape: [28, 28, 1],
   outputClasses: 10,
-  epochs: 7,
+  epochs: 1,
   units: 128,
-  batchSize: 128,
+  batchSize: 20000,
   predictionIndex: 1,
   trainDataSize: 55000,
   testDataSize: 15000,
@@ -27,19 +27,76 @@ let state = {
   }
 }
 
+let inputCanvas;
 // TODOS 
-
-// port another model
 
 // resize displayed images
 
 // graph data
 
 // add canvas to draw on
+class InputCanvas {
+  constructor(args){
+    this.canvas = document.getElementById(args.canvas)
+    this.ctx = null;
+    this.width = args.width;
+    this.height = args.height;
+    this.hoverPos = [[0, 0], [0, 0]];
+    this.dragging = false;
+    this.lineWidth = 30; // todo make relative
+    this.bgColor = args.bgColor;
+    this.strokeStyle = args.strokeStyle;
+  }
 
+  init(){
+    this.ctx = this.canvas.getContext('2d');
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+    this.ctx.fillStyle = this.bgColor;
+    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.canvas.onmousemove = e => this.hover(e); 
+    this.canvas.onmousedown = e => this.mouseDown(e);
+    this.canvas.onmouseup = e => this.mouseUp(e);
+  }
 
+  hover(e){
+    if (this.dragging) { 
+        this.draw()
+      }
+      this.hoverPos.shift()
+      this.hoverPos.push([e.offsetX, e.offsetY])
+      console.log(this.hoverPos)
+  }
+
+  mouseDown(e){ 
+    this.hoverPos = [[e.offsetX, e.offsetY], [e.offsetX, e.offsetY]]
+    this.dragging = true;
+  }
+
+  mouseUp(){
+    this.dragging = false;
+  }
+
+  draw(){
+    if(this.hoverPos[0] === this.hoverPos[1]) return
+    this.ctx.strokeStyle = this.strokeStyle;
+    this.ctx.lineWidth = this.lineWidth;
+    this.ctx.lineJoin = 'bevel';
+    this.ctx.beginPath();
+    this.ctx.moveTo(...this.hoverPos[0]);
+    this.ctx.lineTo(...this.hoverPos[1]);
+    this.ctx.stroke();
+  }
+}
 
 async function init() {
+  inputCanvas = new InputCanvas({
+    canvas: 'input-canvas',
+    width: 400,
+    height: 400,
+    bgColor: '#000000',
+    strokeStyle: '#FFFFFF'
+  }).init()
   // load data
   const numbersData = await getData({
     imageSize: state.imageSize,
@@ -49,6 +106,7 @@ async function init() {
     imgPath: state.numbers.imgPath,
     labelPath: state.numbers.labelPath
   });
+
   const fashionData = await getData({
     imageSize: state.imageSize,
     outputClasses: state.outputClasses,
@@ -64,20 +122,41 @@ async function init() {
   console.log([x_train, y_train])
   console.log([x_test, y_test])
 
-  // create model
-  model = createArbitraryDenseModel()
-  // model = createConvNetModel()
+  // // create model
+  // model = createArbitraryDenseModel()
+  // // model = createConvNetModel()
 
-  // fit model
-  // model, history = fitModel(model, x_train, y_train)
-  model, info = await fitModel(model, x_train, y_train, x_test, y_test)
+  // // fit model
+  // // model, history = fitModel(model, x_train, y_train)
+  // model, info = await fitModel(model, x_train, y_train, x_test, y_test)
 
-  console.log('Final accuracy', info.history.acc);
-  console.log(model)
-  console.log(info)
-  modelPredict([x_test, y_test])
+  // console.log('Final accuracy', info.history.acc);
+  // console.log(model)
+  // console.log(info)
+  // modelPredict([x_test, y_test])
   
 }
+
+// function hover(e) {
+//   let x = e.offsetX;
+//   let y = e.offsetY;
+//   if (e.buttons){
+
+//   }
+//   console.log(`x: ${x} y: ${y}`)
+//   console.log(e)
+// }
+
+// function inputCanvas(){
+//   let canvas = document.getElementById('input-canvas');
+//   let ctx = canvas.getContext('2d')
+//   canvas.width = 400;
+//   canvas.height = 400;
+//   ctx.fillStyle = '#000000'
+//   ctx.fillRect(0, 0, canvas.width, canvas.height);
+//   canvas.onmousemove = e => hover(e);
+
+// }
 
 function modelPredict(data){
   // get test data
@@ -94,15 +173,17 @@ function modelPredict(data){
   console.log(preds.arraySync()) // this is the prediction value
 
   // show prediction on canvas
-  var canvas = document.getElementById('predict')
-  var p = document.getElementById("pedict-num")
-  p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${y_predict.arraySync()}`
+  let div = document.getElementById('predict')
+  const canvas = document.createElement('canvas');
   ctx = canvas.getContext('2d')
-  canvas.width = 28;
-  canvas.height = 28;
-  canvas.style = 'margin: 4px;';
-  x_predict = x_predict.reshape([28, 28, 1]);
+  let p = document.getElementById("pedict-num")
+  p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${y_predict.arraySync()}`
+  // canvas.style = 'margin: 4px;';
+  x_predict = x_predict.reshape([28, 28, 1])
+  
+  
   tf.browser.toPixels(x_predict, canvas)
+  div.appendChild(canvas);
 }
 
 function formatTestData(data) {
@@ -122,10 +203,16 @@ function formatTrainData(data) {
 }
 
 // called at end of fitting epochs
-function onBatchEnd(batch, logs) {
-  var show = document.getElementById("learn-logs")
+async function onBatchEnd(batch, logs) {
+  // TODO .toFixed(1)
+  let show = document.getElementById("learn-logs")
   if(logs.batch % 10 == 0) show.innerText = `batch: ${logs.batch}\nloss: ${logs.loss}\naccuracy: ${logs.acc}`
   console.log('logs', logs);
+
+  // TODO all the graphing goes in this function
+
+  // returns a promise that resolve when a requestAnimationFrame has completed
+  await tf.nextFrame();
 }
 
 // train model against data
