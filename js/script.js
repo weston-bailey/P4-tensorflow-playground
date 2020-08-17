@@ -1,17 +1,29 @@
-document.addEventListener('DOMContentLoaded', () => init())
+document.addEventListener('DOMContentLoaded', () => init());
+castToImage = document.getElementById("cast-to-image")
+castToImage.addEventListener('click', (e) => { getImg(e) })
+function getImg(e) {
+  inputCanvas.castToImage()
+}
+clearInputCanvas = document.getElementById("clear-input-canvas")
+castToImage.addEventListener('click', (e) => { clearCanvas(e) })
+function clearCanvas(e) {
+  inputCanvas.clear()
+}
 
 let state = {
   hiddenLayers: 1,
   inputShape: [28, 28, 1],
   outputClasses: 10,
   epochs: 1,
-  batchSize: 128,
+  units: 128,
+  batchSize: 200000,
   predictionIndex: 1,
   trainDataSize: 55000,
   testDataSize: 15000,
   imageHeight: 28,
   imageWidth: 28,
   imageSize: 28 * 28,
+  inputImg: undefined,
   numbers: {
     dataSetLength: 65000,
     trainTestRatio: 5 / 6,
@@ -26,19 +38,100 @@ let state = {
   }
 }
 
+let inputCanvas
 // TODOS 
-
-// port another model
 
 // resize displayed images
 
 // graph data
 
-// 
+// add canvas to draw on
+class InputCanvas {
+  constructor(args){
+    this.canvas = document.getElementById(args.canvas)
+    this.ctx = null;
+    this.width = args.width;
+    this.height = args.height;
+    this.hoverPos = [[0, 0], [0, 0]]; // [[prevX, prevY], [x, y]]
+    this.dragging = false;
+    this.lineWidth = 30; // todo make relative
+    this.bgColor = args.bgColor;
+    this.strokeStyle = args.strokeStyle;
+  }
+  // setup canvas
+  init(){
+    this.ctx = this.canvas.getContext('2d');
+    // TODO set w/h relative to parent element
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+    this.ctx.fillStyle = this.bgColor;
+    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.canvas.onmousemove = e => this.hover(e); 
+    this.canvas.onmousedown = e => this.mouseDown(e);
+    this.canvas.onmouseup = e => this.mouseUp(e);
+    window.addEventListener('resize', () => this.resize());
+  }
+  // monitor mouse x, y. keep prev and current positions in hoverPos, draw if dragging
+  hover(e){
+    if (this.dragging) { 
+        this.draw()
+      }
+      this.hoverPos.shift()
+      this.hoverPos.push([e.offsetX, e.offsetY])
+  }
+  // reset hoverPos to current position and flag dragging
+  mouseDown(e){ 
+    this.hoverPos = [[e.offsetX, e.offsetY], [e.offsetX, e.offsetY]]
+    this.dragging = true;
+  }
+  // flag dragging
+  mouseUp(){
+    this.dragging = false;
+    this.castToImage()
+  }
+  // draw from prev X/Y to current X/Y linecap = 'round' is the secret
+  draw(){
+    this.ctx.strokeStyle = this.strokeStyle;
+    this.ctx.lineWidth = this.lineWidth;
+    this.ctx.lineCap = 'round';
+    this.ctx.beginPath();
+    this.ctx.moveTo(...this.hoverPos[0]);
+    this.ctx.lineTo(...this.hoverPos[1]);
+    this.ctx.stroke();
+  }
+  // reset 
+  clear(){
+    this.ctx.fillStyle = this.bgColor;
+    this.ctx.fillRect(0, 0, this.width, this.height);
+  }
+  // TODO resize relative to paraent element
+  resize(){
+    console.log('resize')
+  }
+  // return a 28 x 28 img of canvas
+  castToImage(){
+    state.inputImg = this.ctx.getImageData(0, 0, 28, 28);
+    const imageTensor = tf.tidy(() => {
+      const scaleImage = tf.browser.fromPixels(state.inputImg, 1);
+      const shape = scaleImage.expandDims(0);
+      return  tf.image.resizeBilinear(shape, [28, 28]);
+    })
+    modelPredictCanvas(imageTensor)
+    this.clear();
+    // console.log(imageTensor)
+    
+  }
 
-
+}
 
 async function init() {
+  inputCanvas = new InputCanvas({
+    canvas: 'input-canvas',
+    width: 400,
+    height: 400,
+    bgColor: '#000000',
+    strokeStyle: '#FFFFFF'
+  }).init()
   // load data
   const numbersData = await getData({
     imageSize: state.imageSize,
@@ -65,6 +158,7 @@ async function init() {
 
   // create model
   model = createArbitraryDenseModel()
+  // model = createConvNetModel()
 
   // fit model
   // model, history = fitModel(model, x_train, y_train)
@@ -75,6 +169,15 @@ async function init() {
   console.log(info)
   modelPredict([x_test, y_test])
   
+}
+
+function modelPredictCanvas(imageTensor){
+  const testImage = imageTensor;
+  const preds = model.predict(testImage).argMax(-1);
+  console.log(preds)
+  let p = document.getElementById("pedict-num")
+  p.innerText = `I predicted that the image your drew is a ${preds.arraySync()}`
+  imageTensor.dispose()
 }
 
 function modelPredict(data){
@@ -92,19 +195,21 @@ function modelPredict(data){
   console.log(preds.arraySync()) // this is the prediction value
 
   // show prediction on canvas
-  var canvas = document.getElementById('predict')
-  var p = document.getElementById("pedict-num")
-  p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${y_predict.arraySync()}`
+  let div = document.getElementById('predict')
+  const canvas = document.createElement('canvas');
   ctx = canvas.getContext('2d')
-  canvas.width = 28;
-  canvas.height = 28;
-  canvas.style = 'margin: 4px;';
-  x_predict = x_predict.reshape([28, 28, 1]);
+  let p = document.getElementById("pedict-num")
+  p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${y_predict.arraySync()}`
+  // canvas.style = 'margin: 4px;';
+  x_predict = x_predict.reshape([28, 28, 1])
+  
+  
   tf.browser.toPixels(x_predict, canvas)
+  div.appendChild(canvas);
 }
 
 function formatTestData(data) {
-  // iamges
+  // iamges 
   let x_test = tf.tensor4d(data.testImages, [data.testImages.length / state.imageSize, state.imageHeight, state.imageWidth, 1])
   // labels
   let y_test = tf.tensor2d( data.testLabels, [data.testLabels.length / state.outputClasses, state.outputClasses])
@@ -120,10 +225,16 @@ function formatTrainData(data) {
 }
 
 // called at end of fitting epochs
-function onBatchEnd(batch, logs) {
-  var show = document.getElementById("learn-logs")
+async function onBatchEnd(batch, logs) {
+  // TODO .toFixed(1)
+  let show = document.getElementById("learn-logs")
   if(logs.batch % 10 == 0) show.innerText = `batch: ${logs.batch}\nloss: ${logs.loss}\naccuracy: ${logs.acc}`
   console.log('logs', logs);
+
+  // TODO all the graphing goes in this function
+
+  // returns a promise that resolve when a requestAnimationFrame has completed
+  await tf.nextFrame();
 }
 
 // train model against data
@@ -137,22 +248,50 @@ async function fitModel(model, x_train, y_train, x_test, y_test) {
   });
   return model, info
 }
+// Creates a convolution nueral network model
+function createConvNetModel(){
+  //Create the model
+  const model = tf.sequential();
+  // 2d convolution input
+  model.add(tf.layers.conv2d({ inputShape: state.inputShape, filters: 32, kernelSize: [3, 3], activation: 'relu'}))
+  // pooling layer to downsample 
+  model.add(tf.layers.maxPooling2d({ poolSize: [2, 2] }))
+  // 2d convolution with double the filters
+  model.add(tf.layers.conv2d({ filters: 32, kernelSize: [3, 3], activation: 'relu'}))
+  // pooling layer to downsample 
+  model.add(tf.layers.maxPooling2d({ poolSize: [2, 2] }))
+  // flatten layer before output
+  model.add(tf.layers.flatten({}));
+  // add hidden layers
+  for(let i = 0; i < state.hiddenLayers; i++){
+    model.add(tf.layers.dense({ units: state.units, activation: 'relu' })); 
+  }
+  // softmax output layer
+  model.add(tf.layers.dense({ units: state.outputClasses, activation: 'softmax' })); 
+  // compile
+  model.compile({loss: 'categoricalCrossentropy', optimizer: 'adam', metrics:['accuracy']});
+  // summary in console
+  model.summary()
+
+  return model
+}
 
 // create a sequential desnse model with an arbitrary
 // amount of hidden layers
 function createArbitraryDenseModel() {
   //Create the model
   const model = tf.sequential();
-  // add input layer 
+  // add input layer that flattens shape
   model.add(tf.layers.flatten({ inputShape: state.inputShape }));
   // add hidden layers
   for(let i = 0; i < state.hiddenLayers; i++){
-    model.add(tf.layers.dense({ units: 128, activation: 'relu' })); 
+    model.add(tf.layers.dense({ units: state.units, activation: 'relu' })); 
   }
   // softmax output layer
   model.add(tf.layers.dense({ units: state.outputClasses, activation: 'softmax' })); 
   // compile
   model.compile({loss: 'categoricalCrossentropy', optimizer: 'adam', metrics:['accuracy']});
+  // summary in console
   model.summary()
   return model
 }
