@@ -1,4 +1,14 @@
-document.addEventListener('DOMContentLoaded', () => init())
+document.addEventListener('DOMContentLoaded', () => init());
+castToImage = document.getElementById("cast-to-image")
+castToImage.addEventListener('click', (e) => { getImg(e) })
+function getImg(e) {
+  inputCanvas.castToImage()
+}
+clearInputCanvas = document.getElementById("clear-input-canvas")
+castToImage.addEventListener('click', (e) => { clearCanvas(e) })
+function clearCanvas(e) {
+  inputCanvas.clear()
+}
 
 let state = {
   hiddenLayers: 1,
@@ -6,13 +16,14 @@ let state = {
   outputClasses: 10,
   epochs: 1,
   units: 128,
-  batchSize: 20000,
+  batchSize: 200000,
   predictionIndex: 1,
   trainDataSize: 55000,
   testDataSize: 15000,
   imageHeight: 28,
   imageWidth: 28,
   imageSize: 28 * 28,
+  inputImg: undefined,
   numbers: {
     dataSetLength: 65000,
     trainTestRatio: 5 / 6,
@@ -27,7 +38,7 @@ let state = {
   }
 }
 
-let inputCanvas;
+let inputCanvas
 // TODOS 
 
 // resize displayed images
@@ -41,15 +52,16 @@ class InputCanvas {
     this.ctx = null;
     this.width = args.width;
     this.height = args.height;
-    this.hoverPos = [[0, 0], [0, 0]];
+    this.hoverPos = [[0, 0], [0, 0]]; // [[prevX, prevY], [x, y]]
     this.dragging = false;
     this.lineWidth = 30; // todo make relative
     this.bgColor = args.bgColor;
     this.strokeStyle = args.strokeStyle;
   }
-
+  // setup canvas
   init(){
     this.ctx = this.canvas.getContext('2d');
+    // TODO set w/h relative to parent element
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.ctx.fillStyle = this.bgColor;
@@ -57,36 +69,59 @@ class InputCanvas {
     this.canvas.onmousemove = e => this.hover(e); 
     this.canvas.onmousedown = e => this.mouseDown(e);
     this.canvas.onmouseup = e => this.mouseUp(e);
+    window.addEventListener('resize', () => this.resize());
   }
-
+  // monitor mouse x, y. keep prev and current positions in hoverPos, draw if dragging
   hover(e){
     if (this.dragging) { 
         this.draw()
       }
       this.hoverPos.shift()
       this.hoverPos.push([e.offsetX, e.offsetY])
-      console.log(this.hoverPos)
   }
-
+  // reset hoverPos to current position and flag dragging
   mouseDown(e){ 
     this.hoverPos = [[e.offsetX, e.offsetY], [e.offsetX, e.offsetY]]
     this.dragging = true;
   }
-
+  // flag dragging
   mouseUp(){
     this.dragging = false;
+    this.castToImage()
   }
-
+  // draw from prev X/Y to current X/Y linecap = 'round' is the secret
   draw(){
-    if(this.hoverPos[0] === this.hoverPos[1]) return
     this.ctx.strokeStyle = this.strokeStyle;
     this.ctx.lineWidth = this.lineWidth;
-    this.ctx.lineJoin = 'bevel';
+    this.ctx.lineCap = 'round';
     this.ctx.beginPath();
     this.ctx.moveTo(...this.hoverPos[0]);
     this.ctx.lineTo(...this.hoverPos[1]);
     this.ctx.stroke();
   }
+  // reset 
+  clear(){
+    this.ctx.fillStyle = this.bgColor;
+    this.ctx.fillRect(0, 0, this.width, this.height);
+  }
+  // TODO resize relative to paraent element
+  resize(){
+    console.log('resize')
+  }
+  // return a 28 x 28 img of canvas
+  castToImage(){
+    state.inputImg = this.ctx.getImageData(0, 0, 28, 28);
+    const imageTensor = tf.tidy(() => {
+      const scaleImage = tf.browser.fromPixels(state.inputImg, 1);
+      const shape = scaleImage.expandDims(0);
+      return  tf.image.resizeBilinear(shape, [28, 28]);
+    })
+    modelPredictCanvas(imageTensor)
+    this.clear();
+    // console.log(imageTensor)
+    
+  }
+
 }
 
 async function init() {
@@ -106,7 +141,6 @@ async function init() {
     imgPath: state.numbers.imgPath,
     labelPath: state.numbers.labelPath
   });
-
   const fashionData = await getData({
     imageSize: state.imageSize,
     outputClasses: state.outputClasses,
@@ -122,41 +156,29 @@ async function init() {
   console.log([x_train, y_train])
   console.log([x_test, y_test])
 
-  // // create model
-  // model = createArbitraryDenseModel()
-  // // model = createConvNetModel()
+  // create model
+  model = createArbitraryDenseModel()
+  // model = createConvNetModel()
 
-  // // fit model
-  // // model, history = fitModel(model, x_train, y_train)
-  // model, info = await fitModel(model, x_train, y_train, x_test, y_test)
+  // fit model
+  // model, history = fitModel(model, x_train, y_train)
+  model, info = await fitModel(model, x_train, y_train, x_test, y_test)
 
-  // console.log('Final accuracy', info.history.acc);
-  // console.log(model)
-  // console.log(info)
-  // modelPredict([x_test, y_test])
+  console.log('Final accuracy', info.history.acc);
+  console.log(model)
+  console.log(info)
+  modelPredict([x_test, y_test])
   
 }
 
-// function hover(e) {
-//   let x = e.offsetX;
-//   let y = e.offsetY;
-//   if (e.buttons){
-
-//   }
-//   console.log(`x: ${x} y: ${y}`)
-//   console.log(e)
-// }
-
-// function inputCanvas(){
-//   let canvas = document.getElementById('input-canvas');
-//   let ctx = canvas.getContext('2d')
-//   canvas.width = 400;
-//   canvas.height = 400;
-//   ctx.fillStyle = '#000000'
-//   ctx.fillRect(0, 0, canvas.width, canvas.height);
-//   canvas.onmousemove = e => hover(e);
-
-// }
+function modelPredictCanvas(imageTensor){
+  const testImage = imageTensor;
+  const preds = model.predict(testImage).argMax(-1);
+  console.log(preds)
+  let p = document.getElementById("pedict-num")
+  p.innerText = `I predicted that the image your drew is a ${preds.arraySync()}`
+  imageTensor.dispose()
+}
 
 function modelPredict(data){
   // get test data
