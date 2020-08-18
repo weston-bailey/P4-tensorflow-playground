@@ -45,7 +45,8 @@ function createConvNetModel(){
   // compile
   model.compile({loss: 'categoricalCrossentropy', optimizer: optimizer, metrics:['accuracy']});
   // summary in console
-  model.summary()
+  model.summary();
+  showModelSummary(model);
 
   return model
 }
@@ -69,6 +70,8 @@ function createArbitraryDenseModel() {
   model.compile({loss: 'categoricalCrossentropy', optimizer: optimizer, metrics:['accuracy']});
   // summary in console
   model.summary()
+  showModelSummary(model);
+
   return model
 }
 
@@ -116,19 +119,17 @@ function modelPredict(model, data){
 
 // called at end of fitting epochs
 async function onBatchEnd(batch, logs) {
-  // TODO .toFixed(1)
-  let show = document.getElementById("learn-logs")
-  if(logs.batch % 10 == 0) show.innerText = `batch: ${logs.batch}\nloss: ${logs.loss}\naccuracy: ${logs.acc}`
-  console.log('logs', logs);
-
-  // TODO all the graphing goes in this function
-
-  // returns a promise that resolve when a requestAnimationFrame has completed
+  if(logs.batch == 0) {
+    state.currentEpoch++
+    showFittingTrainingStatus()
+  }
+  if(logs.batch % 10 == 0) showEpochTrainingStatus(logs)
   await tf.nextFrame();
 }
 
 // train model against data
 async function fitModel(model, xTrain, yTrain, xTest, yTest) {
+  state.currentEpoch = 0;
   info = await model.fit(xTrain, yTrain, {
     batchSize: state.batchSize,
     validationData: [xTest, yTest],

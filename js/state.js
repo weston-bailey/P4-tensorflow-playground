@@ -40,6 +40,7 @@ let state = {
     labelPath: 'https://storage.googleapis.com/learnjs-data/model-builder/fashion_mnist_labels_uint8',
   },
   predictImageSet: {},
+  currentEpoch: 0,
   // below are constants
   inputShape: [28, 28, 1],
   outputClasses: 10,
