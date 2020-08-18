@@ -130,6 +130,8 @@ async function onBatchEnd(batch, logs) {
 // train model against data
 async function fitModel(model, xTrain, yTrain, xTest, yTest) {
   state.currentEpoch = 0;
+  state.batchAcc = [];
+  state.batchLoss = [];
   info = await model.fit(xTrain, yTrain, {
     batchSize: state.batchSize,
     validationData: [xTest, yTest],
@@ -137,5 +139,24 @@ async function fitModel(model, xTrain, yTrain, xTest, yTest) {
     shuffle: true,
     callbacks: { onBatchEnd }
   });
+  await evaluateModel(model, xTest, yTest)
+
   return model, info
 }
+
+// evaluate model's accuracy TODO breakout ui stuff
+async function evaluateModel(model, xTest, yTest) {
+  // evaluate model
+  const classNames = state.dataSet === 'numbers' ? state.numbers.classNames : state.fashion.classNames;
+
+  // const [xTest, yTest] = state.dataSet === 'numbers' ? state.numbers.data.test : state.fashion.data.test;
+
+  let xPredict = model.predict(xTest).argMax(1)
+  let yPredict = yTest.argMax(1)
+  let evaluation = await tfvis.metrics.accuracy(yPredict, xPredict);
+  EVAL_ACC.innerText = `Overall Accuracy: ${evaluation.toFixed(2)}`;
+  const classaAcc = await tfvis.metrics.perClassAccuracy(yPredict,xPredict);
+  tfvis.show.perClassAccuracy(MODEL_EVAL_TABLE, classaAcc, classNames)
+  return evaluation, [xPredict, yPredict]
+}
+

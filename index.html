@@ -6,7 +6,7 @@
   <!-- tfsj cdn link -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
   <!-- tfjs-vis cdn -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.4.3/dist/tfjs-vis.umd.min.js"></script>
   <!-- chart.js cdn -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
   <!-- bootstrap cdn link -->
@@ -123,8 +123,18 @@
         </div>
         <div class="progress">
           <div class="progress-bar bg-success" style="width: 0%" id="batch-acc-status"></div>
+
           <div class="progress-bar bg-danger" style="width: 0%" id="batch-loss-status"></div>
         </div>
+
+        <div class="row d-flex justify-content-center" id="batch-training-graph"></div>
+        <hr />
+        
+        <h5>Model Evaluation:</h5>
+        <div class="row d-flex justify-content-center" id="model-eval-table"></div>
+        <div class="badge badge-success" id="eval-acc"></div>
+
+
 
         <p id="learn-logs"></p>
         <!-- <canvas id="scatter-chartjs" height="400" width="500"></canvas> -->

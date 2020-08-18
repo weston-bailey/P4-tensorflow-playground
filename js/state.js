@@ -28,6 +28,7 @@ let state = {
     trainTestRatio: 5 / 6,
     imgPath: 'https://storage.googleapis.com/learnjs-data/model-builder/mnist_images.png',
     labelPath: 'https://storage.googleapis.com/learnjs-data/model-builder/mnist_labels_uint8',
+    classNames: ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine']
   },
   fashion: {
     data: {
@@ -38,9 +39,13 @@ let state = {
     trainTestRatio: 6 / 7,
     imgPath: 'https://storage.googleapis.com/learnjs-data/model-builder/fashion_mnist_images.png',
     labelPath: 'https://storage.googleapis.com/learnjs-data/model-builder/fashion_mnist_labels_uint8',
+    classNames: ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
   },
   predictImageSet: {},
+  // for training ui
   currentEpoch: 0,
+  batchLoss: [],
+  batchAcc: [],
   // below are constants
   inputShape: [28, 28, 1],
   outputClasses: 10,

@@ -37,6 +37,9 @@ const EPOCH_TRAINING_STATUS = document.getElementById('epoch-training-status');
 const FITTING_TRAINING_STATUS = document.getElementById('fitting-training-status');
 const BATCH_LOSS_STATUS = document.getElementById('batch-loss-status');
 const BATCH_ACC_STATUS = document.getElementById('batch-acc-status');
+const BATCH_TRAINING_GRAPH = document.getElementById('batch-training-graph');
+const MODEL_EVAL_TABLE = document.getElementById('model-eval-table');
+const EVAL_ACC = document.getElementById('eval-acc');
 
 // TODOS 
 

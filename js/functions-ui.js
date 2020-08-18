@@ -73,10 +73,10 @@ function handleLearningRateNumber(e) {
 async function handleTrainingStartPause() {
   const [xTrain, yTrain] = state.dataSet === 'numbers' ? state.numbers.data.train : state.fashion.data.train;
   const [xTest, yTest] = state.dataSet === 'numbers' ? state.numbers.data.test : state.fashion.data.test;
-  console.log(xTrain, yTrain, xTest, yTest, state.model)
-  let info
+  // console.log(xTrain, yTrain, xTest, yTest, state.model)
+  let info;
   state.model, info = await fitModel(state.model, xTrain, yTrain, xTest, yTest)
-  console.log(info)
+  console.log('info', info)
 }
 
 function handleTrainingStop() {
@@ -121,6 +121,7 @@ function showModelSummary(model) {
 }
 
 function showEpochTrainingStatus(logs){
+  // progress bars
   let percent = 103 * (logs.batch / (state.trainDataSize / state.batchSize));
   percent = `${percent < 100 ? Math.ceil(percent) : 100}%`; 
   EPOCH_TRAINING_STATUS.style.width = percent;
@@ -129,7 +130,17 @@ function showEpochTrainingStatus(logs){
   BATCH_LOSS_STATUS.innerText = `${logs.loss.toFixed(3)}`;
   BATCH_ACC_STATUS.style.width = `${logs.acc * 100.}%`;
   BATCH_ACC_STATUS.innerText = `${logs.acc.toFixed(3)}`;
-  console.log(logs)
+  // graph
+  state.batchAcc.push({ x: state.batchAcc.length, y: logs.acc })
+  state.batchLoss.push({ x: state.batchLoss.length, y: logs.loss >= .999 ? .999 : logs.loss })
+  const options = {
+    xLabel: 'batch 10x',
+    yLabel: 'Value',
+    yAxisDomain: [0, 1],
+    seriesColors: ['#28a745', '#dc3545']
+  }; // Prep the data
+  const data = { values: [state.batchAcc, state.batchLoss], series: ['Accuracy', 'Loss'] }
+  tfvis.render.linechart(BATCH_TRAINING_GRAPH, data, options)
 }
 
 function showFittingTrainingStatus(){
