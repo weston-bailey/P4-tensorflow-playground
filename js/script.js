@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => init());
 /* ~~~~~~~~~~~~~~~~~~~~~~ event listeners ~~~~~~~~~~~~~~~~~~~~~~ */
+// select dataset
+const DATA_SELECT = document.getElementById('data-select');
+DATA_SELECT.addEventListener('change', e => handleDataSelect(e));
 // model creation
 const MODEL_SELECT = document.getElementById('model-select');
 const UNITS_NUMBER = document.getElementById('units-number');
@@ -9,10 +12,20 @@ MODEL_SELECT.addEventListener('change', e => handleModelSelect(e));
 UNITS_NUMBER.addEventListener('change', e => handleUnitsNumber(e));
 HIDDEN_LAYERS_NUMBER.addEventListener('change', e => handleHiddenLayersNumber(e))
 MODEL_CREATE_DESTROY.addEventListener('click', () => handleModelCreateDestroy());
+// train form
+const BATCH_NUMBER = document.getElementById('batch-number');
+const EPOCHS_NUMBER  = document.getElementById('epochs-number');
+const TRAINING_START_PAUSE = document.getElementById('training-start-pause');
+const TRAINING_STOP = document.getElementById('training-stop');
+BATCH_NUMBER.addEventListener('change', e => handleBatchNumber(e));
+EPOCHS_NUMBER.addEventListener('change', e => handleEpochsNumber(e));
+TRAINING_START_PAUSE.addEventListener('click', () => handleTrainingStartPause());
+TRAINING_STOP.addEventListener('click', () => handleTrainingStop());
+
 // input canvas 
 const CAST_TO_IMAGE = document.getElementById("cast-to-image");
-CAST_TO_IMAGE.addEventListener('click', () => inputCanvas.castToImage());
 const CLEAR_INPUT_CANVAS = document.getElementById("clear-input-canvas");
+CAST_TO_IMAGE.addEventListener('click', () => inputCanvas.castToImage());
 CLEAR_INPUT_CANVAS.addEventListener('click', () => inputCanvas.clear());
 
 
@@ -28,37 +41,37 @@ let inputCanvas
 let model
 
 async function init() {
-  // inputCanvas = new InputCanvas({
-  //   canvas: 'input-canvas',
-  //   width: 400,
-  //   height: 400,
-  //   bgColor: '#000000',
-  //   strokeStyle: '#FFFFFF'
-  // })
-  // inputCanvas.init()
-  // // load data
-  // const numbersData = await getData({
-  //   imageSize: state.imageSize,
-  //   outputClasses: state.outputClasses,
-  //   dataSetLength: state.numbers.dataSetLength,
-  //   trainTestRatio: state.numbers.trainTestRatio,
-  //   imgPath: state.numbers.imgPath,
-  //   labelPath: state.numbers.labelPath
-  // });
-  // const fashionData = await getData({
-  //   imageSize: state.imageSize,
-  //   outputClasses: state.outputClasses,
-  //   dataSetLength: state.fashion.dataSetLength,
-  //   trainTestRatio: state.fashion.trainTestRatio,
-  //   imgPath: state.fashion.imgPath,
-  //   labelPath: state.fashion.labelPath
-  // });
-  // // groom data
-  // state.numbers.data.train = [xTrainNumbers, yTrainNumbers] = formatTrainData(numbersData);
-  // state.numbers.data.test = [xTestNumbers, yTestNumbers] = formatTestData(numbersData);
+  inputCanvas = new InputCanvas({
+    canvas: 'input-canvas',
+    width: 400,
+    height: 400,
+    bgColor: '#000000',
+    strokeStyle: '#FFFFFF'
+  })
+  inputCanvas.init()
+  // load data
+  const numbersData = await getData({
+    imageSize: state.imageSize,
+    outputClasses: state.outputClasses,
+    dataSetLength: state.numbers.dataSetLength,
+    trainTestRatio: state.numbers.trainTestRatio,
+    imgPath: state.numbers.imgPath,
+    labelPath: state.numbers.labelPath
+  });
+  const fashionData = await getData({
+    imageSize: state.imageSize,
+    outputClasses: state.outputClasses,
+    dataSetLength: state.fashion.dataSetLength,
+    trainTestRatio: state.fashion.trainTestRatio,
+    imgPath: state.fashion.imgPath,
+    labelPath: state.fashion.labelPath
+  });
+  // groom data
+  state.numbers.data.train = [xTrainNumbers, yTrainNumbers] = formatTrainData(numbersData);
+  state.numbers.data.test = [xTestNumbers, yTestNumbers] = formatTestData(numbersData);
 
-  // state.fashion.data.train = [xTrainFashion, yTrainFashion] = formatTrainData(fashionData);
-  // state.fashion.data.test = [xTestFashion, yTestFashion] = formatTestData(fashionData);
+  state.fashion.data.train = [xTrainFashion, yTrainFashion] = formatTrainData(fashionData);
+  state.fashion.data.test = [xTestFashion, yTestFashion] = formatTestData(fashionData);
 
   // const [xTrain, yTrain] = state.fashion.data.train;
   // const [xTest, yTest] = state.fashion.data.test;

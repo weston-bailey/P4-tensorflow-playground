@@ -9,8 +9,8 @@ let state = {
   // the model
   model: undefined,
   // training config
+  batchSize: 128,
   epochs: 1,
-  batchSize: 64,
   // image tensor of canvas TODO use 
   inputImg: undefined,
   // TODO may be deprecated

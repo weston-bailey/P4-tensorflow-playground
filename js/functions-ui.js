@@ -1,4 +1,10 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~ event handlers ~~~~~~~~~~~~~~~~~~~~~~ */
+
+// model creation form
+function handleDataSelect(e) {
+  state.dataSet = e.target.value;
+  console.log(state.dataSet)
+}
 function handleModelSelect(e) {
   state.modelType = e.target.value;
 }
@@ -8,16 +14,15 @@ function handleUnitsNumber(e) {
 }
 
 function handleHiddenLayersNumber(e) {
-  // update state
   state.hiddenLayers = parseInt(e.target.value);
 }
 
-// change form after model is made 
 function modelCreateFormControl(btnClass, btnText, disabled) {
   // change button
   MODEL_CREATE_DESTROY.className = btnClass;
   MODEL_CREATE_DESTROY.innerText = btnText;
   // lock/unlock form
+  DATA_SELECT.disabled = disabled;
   MODEL_SELECT.disabled = disabled;
   UNITS_NUMBER.disabled = disabled;
   HIDDEN_LAYERS_NUMBER.disabled = disabled;
@@ -44,4 +49,28 @@ function handleModelCreateDestroy() {
   state.model = undefined;
   // update form
   return modelCreateFormControl("form-control btn btn-primary", "Create Model", false)
+}
+
+// training form
+function handleBatchNumber(e) {
+  state.batchSize = e.target.value
+  console.log(state.batchSize);
+}
+
+function handleEpochsNumber(e) {
+  state.epochs = e.target.value;
+  console.log(state.epochs);
+}
+
+async function handleTrainingStartPause() {
+  const [xTrain, yTrain] = state.dataSet === 'numbers' ? state.numbers.data.train : state.fashion.data.train;
+  const [xTest, yTest] = state.dataSet === 'numbers' ? state.numbers.data.test : state.fashion.data.test;
+  console.log(xTrain, yTrain, xTest, yTest, state.model)
+  let info
+  state.model, info = await fitModel(state.model, xTrain, yTrain, xTest, yTest)
+  console.log(info)
+}
+
+function handleTrainingStop() {
+  console.log('stop')
 }
