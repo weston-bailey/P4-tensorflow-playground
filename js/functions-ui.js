@@ -63,6 +63,11 @@ function handleEpochsNumber(e) {
   console.log(state.epochs);
 }
 
+function handleLearningRateNumber(e) {
+  state.learningRate = parseFloat(e.target.value);
+  console.log(state.learningRate);
+}
+
 async function handleTrainingStartPause() {
   const [xTrain, yTrain] = state.dataSet === 'numbers' ? state.numbers.data.train : state.fashion.data.train;
   const [xTest, yTest] = state.dataSet === 'numbers' ? state.numbers.data.test : state.fashion.data.test;

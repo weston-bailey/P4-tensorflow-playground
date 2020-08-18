@@ -14,11 +14,13 @@ HIDDEN_LAYERS_NUMBER.addEventListener('change', e => handleHiddenLayersNumber(e)
 MODEL_CREATE_DESTROY.addEventListener('click', () => handleModelCreateDestroy());
 // train form
 const BATCH_NUMBER = document.getElementById('batch-number');
-const EPOCHS_NUMBER  = document.getElementById('epochs-number');
+const EPOCHS_NUMBER = document.getElementById('epochs-number');
+const LEARNING_RATE_NUMBER = document.getElementById('learning-rate-number');
 const TRAINING_START_PAUSE = document.getElementById('training-start-pause');
 const TRAINING_STOP = document.getElementById('training-stop');
 BATCH_NUMBER.addEventListener('change', e => handleBatchNumber(e));
 EPOCHS_NUMBER.addEventListener('change', e => handleEpochsNumber(e));
+LEARNING_RATE_NUMBER.addEventListener('change', e => handleLearningRateNumber(e));
 TRAINING_START_PAUSE.addEventListener('click', () => handleTrainingStartPause());
 TRAINING_STOP.addEventListener('click', () => handleTrainingStop());
 
@@ -35,7 +37,9 @@ CLEAR_INPUT_CANVAS.addEventListener('click', () => inputCanvas.clear());
 
 // resize displayed images
 
-// graph dat
+// graph data
+
+// 
 
 
 let inputCanvas

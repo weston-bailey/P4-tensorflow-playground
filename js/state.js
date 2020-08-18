@@ -5,12 +5,13 @@ let state = {
   modelType: 'dense',
   // dense layer config
   hiddenLayers: 1,
-  units: 1,
+  units: 128,
   // the model
   model: undefined,
   // training config
-  batchSize: 50000,
+  batchSize: 128,
   epochs: 1,
+  learningRate: .001,
   // image tensor of canvas TODO use 
   inputImg: undefined,
   // TODO may be deprecated
@@ -38,6 +39,7 @@ let state = {
     imgPath: 'https://storage.googleapis.com/learnjs-data/model-builder/fashion_mnist_images.png',
     labelPath: 'https://storage.googleapis.com/learnjs-data/model-builder/fashion_mnist_labels_uint8',
   },
+  predictImageSet: {},
   // below are constants
   inputShape: [28, 28, 1],
   outputClasses: 10,

@@ -38,11 +38,12 @@ function createConvNetModel(){
   for(let i = 0; i < state.hiddenLayers; i++){
     model.add(tf.layers.dense({ units: state.units, activation: 'relu' })); 
   }
-
   // softmax output layer
   model.add(tf.layers.dense({ units: state.outputClasses, activation: 'softmax' })); 
+
+  let optimizer = tf.train.adam(state.learningRate)
   // compile
-  model.compile({loss: 'categoricalCrossentropy', optimizer: 'adam', metrics:['accuracy']});
+  model.compile({loss: 'categoricalCrossentropy', optimizer: optimizer, metrics:['accuracy']});
   // summary in console
   model.summary()
 
@@ -62,8 +63,10 @@ function createArbitraryDenseModel() {
   }
   // softmax output layer
   model.add(tf.layers.dense({ units: state.outputClasses, activation: 'softmax' })); 
+
+  let optimizer = tf.train.adam(state.learningRate)
   // compile
-  model.compile({loss: 'categoricalCrossentropy', optimizer: 'adam', metrics:['accuracy']});
+  model.compile({loss: 'categoricalCrossentropy', optimizer: optimizer, metrics:['accuracy']});
   // summary in console
   model.summary()
   return model
@@ -93,6 +96,7 @@ function modelPredict(model, data){
 
 
   const preds = model.predict(xPredict).argMax(-1);
+
   console.log(preds)
 
   console.log(preds.arraySync()) // this is the prediction value
@@ -100,7 +104,7 @@ function modelPredict(model, data){
   // show prediction on canvas
   let div = document.getElementById('predict')
   const canvas = document.createElement('canvas');
-  ctx = canvas.getContext('2d')
+  let ctx = canvas.getContext('2d')
   let p = document.getElementById("pedict-num")
   p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${yPredict.arraySync()}`
   // canvas.style = 'margin: 4px;';
