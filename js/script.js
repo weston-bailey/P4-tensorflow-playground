@@ -22,10 +22,12 @@ EPOCHS_NUMBER.addEventListener('change', e => handleEpochsNumber(e));
 TRAINING_START_PAUSE.addEventListener('click', () => handleTrainingStartPause());
 TRAINING_STOP.addEventListener('click', () => handleTrainingStop());
 
+
+
 // input canvas 
 const CAST_TO_IMAGE = document.getElementById("cast-to-image");
 const CLEAR_INPUT_CANVAS = document.getElementById("clear-input-canvas");
-CAST_TO_IMAGE.addEventListener('click', () => inputCanvas.castToImage());
+CAST_TO_IMAGE.addEventListener('click', () => handlePredict());
 CLEAR_INPUT_CANVAS.addEventListener('click', () => inputCanvas.clear());
 
 

@@ -5,11 +5,11 @@ let state = {
   modelType: 'dense',
   // dense layer config
   hiddenLayers: 1,
-  units: 128,
+  units: 1,
   // the model
   model: undefined,
   // training config
-  batchSize: 128,
+  batchSize: 50000,
   epochs: 1,
   // image tensor of canvas TODO use 
   inputImg: undefined,

@@ -53,7 +53,8 @@ function handleModelCreateDestroy() {
 
 // training form
 function handleBatchNumber(e) {
-  state.batchSize = e.target.value
+  console.log('called')
+  state.batchSize = parseInt(e.target.value)
   console.log(state.batchSize);
 }
 
@@ -73,4 +74,12 @@ async function handleTrainingStartPause() {
 
 function handleTrainingStop() {
   console.log('stop')
+}
+
+function handlePredict() {
+  // if(!state.model) return;
+  const imageTensor = inputCanvas.castToImage();
+  modelPredictCanvas(state.model, imageTensor)
+  // modelPredict(state.model, state.numbers.data.test)
+  // console.log(imageTensor)
 }

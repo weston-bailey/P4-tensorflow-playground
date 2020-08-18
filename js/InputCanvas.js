@@ -10,6 +10,7 @@ class InputCanvas {
     this.lineWidth = 30; // todo make relative
     this.bgColor = args.bgColor;
     this.strokeStyle = args.strokeStyle;
+    this.imageUrl = new Image();
   }
   // setup canvas
   init(){
@@ -50,6 +51,8 @@ class InputCanvas {
     this.ctx.moveTo(...this.hoverPos[0]);
     this.ctx.lineTo(...this.hoverPos[1]);
     this.ctx.stroke();
+    this.imageUrl.src = this.canvas.toDataURL('image/png');
+    console.log(this.imageUrl)
   }
   // reset 
   clear() {
@@ -62,14 +65,11 @@ class InputCanvas {
   }
   // return a 28 x 28 img of canvas
   castToImage(){
-    state.inputImg = this.ctx.getImageData(0, 0, 28, 28);
     const imageTensor = tf.tidy(() => {
-      const scaleImage = tf.browser.fromPixels(state.inputImg, 1);
-      const shape = scaleImage.expandDims(0);
-      return  tf.image.resizeBilinear(shape, [28, 28]);
-    })
-    modelPredictCanvas(model, imageTensor)
-    console.log('called cast')
-    // console.log(imageTensor)
+    const scaleImage = tf.browser.fromPixels(this.imageUrl, 1)
+    const shape = tf.image.resizeBilinear(scaleImage, [28, 28]);
+    return shape.expandDims(0);
+  });
+  return imageTensor
   }
 }
