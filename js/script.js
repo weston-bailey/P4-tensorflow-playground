@@ -23,15 +23,23 @@ EPOCHS_NUMBER.addEventListener('change', e => handleEpochsNumber(e));
 LEARNING_RATE_NUMBER.addEventListener('change', e => handleLearningRateNumber(e));
 TRAINING_START_PAUSE.addEventListener('click', () => handleTrainingStartPause());
 TRAINING_STOP.addEventListener('click', () => handleTrainingStop());
-
-
-
 // input canvas 
 const CAST_TO_IMAGE = document.getElementById("cast-to-image");
 const CLEAR_INPUT_CANVAS = document.getElementById("clear-input-canvas");
 CAST_TO_IMAGE.addEventListener('click', () => handlePredict());
 CLEAR_INPUT_CANVAS.addEventListener('click', () => inputCanvas.clear());
 
+/* ~~~~~~~~~~~~~~~~~~~~~~ DOM manipulation ~~~~~~~~~~~~~~~~~~~~~~ */
+// show images from dataset
+const DEMO_DATA = document.getElementById('demo-data');
+const MODEL_LAYER_DETAILS = document.getElementById('model-layer-details');
+const EPOCH_TRAINING_STATUS = document.getElementById('epoch-training-status');
+const FITTING_TRAINING_STATUS = document.getElementById('fitting-training-status');
+const BATCH_LOSS_STATUS = document.getElementById('batch-loss-status');
+const BATCH_ACC_STATUS = document.getElementById('batch-acc-status');
+const BATCH_TRAINING_GRAPH = document.getElementById('batch-training-graph');
+const MODEL_EVAL_TABLE = document.getElementById('model-eval-table');
+const EVAL_ACC = document.getElementById('eval-acc');
 
 // TODOS 
 
@@ -78,6 +86,8 @@ async function init() {
 
   state.fashion.data.train = [xTrainFashion, yTrainFashion] = formatTrainData(fashionData);
   state.fashion.data.test = [xTestFashion, yTestFashion] = formatTestData(fashionData);
+
+  showDemoData(state.numbers.data.test)
 
   // const [xTrain, yTrain] = state.fashion.data.train;
   // const [xTest, yTest] = state.fashion.data.test;

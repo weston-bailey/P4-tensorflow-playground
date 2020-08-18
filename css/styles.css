@@ -12,6 +12,10 @@ h1, h3 {
   color: #39FF14;
 } */
 
+.demo-data-canvas {
+  width: "100px"
+}
+
 .prediction-canvas {
   width: "300"
 }

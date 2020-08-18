@@ -6,7 +6,7 @@
   <!-- tfsj cdn link -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
   <!-- tfjs-vis cdn -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.4.3/dist/tfjs-vis.umd.min.js"></script>
   <!-- chart.js cdn -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
   <!-- bootstrap cdn link -->
@@ -20,8 +20,10 @@
     <a href=" " class="navbar-brand">🤖 Hello World 🤖</a>
   </nav>
 
-  <main class="container">
+  <main class="container-fluid">
     <div class="row">
+      <!-- gutter col -->
+      <div class="col-1"></div>
       <!-- left col -->
       <div class="col">
         <!-- select model type -->
@@ -71,7 +73,7 @@
         
         <!-- canvas interaction -->
         <div class="row">
-          <div id="input-canvas-container">
+          <div id="row d-flex justify-content-center">
             <canvas id="input-canvas"></canvas>
           </div>
           
@@ -83,8 +85,57 @@
         </div>
       </div>
 
+      <!-- gutter col -->
+      <div class="col-1"></div>
       <!-- right column -->
       <div class="col">
+        <div class="row">
+          <h5>Dataset Example Images:</h5>
+        </div>
+        <div class="row d-flex justify-content-center" id="demo-data"></div>
+        <hr />  
+
+        <div class="row">
+          <h5>Model Layer Details:</h5>
+        </div>
+        <div class="row d-flex justify-content-center" id="model-layer-details"></div>
+        <hr />  
+
+        <div class="row">
+          <h5>Training Details:</h5>
+        </div>  
+
+        <div class="caption">Current Epoch</div>
+        <div class="progress">
+          <div class="progress-bar bg-info" style="width: 0%" id="fitting-training-status"></div>
+        </div>
+
+        <div class="caption">Progress</div>
+        <div class="progress">
+          <div class="progress-bar bg-success" style="width: 0%" id="epoch-training-status"></div>
+        </div>
+        
+        <div class="caption">
+          Batch 
+          <span class="text-success">Accuracy</span>
+          /
+          <span class="text-danger">Loss</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar bg-success" style="width: 0%" id="batch-acc-status"></div>
+
+          <div class="progress-bar bg-danger" style="width: 0%" id="batch-loss-status"></div>
+        </div>
+
+        <div class="row d-flex justify-content-center" id="batch-training-graph"></div>
+        <hr />
+        
+        <h5>Model Evaluation:</h5>
+        <div class="row d-flex justify-content-center" id="model-eval-table"></div>
+        <div class="badge badge-success" id="eval-acc"></div>
+
+
+
         <p id="learn-logs"></p>
         <!-- <canvas id="scatter-chartjs" height="400" width="500"></canvas> -->
         <div id="predict">
@@ -93,6 +144,8 @@
         
         <p id="pedict-num"></p>
       </div>
+      <!-- gutter col -->
+      <div class="col-1"></div>
     </div>
   </main>
     <!-- TODO make UI -->
