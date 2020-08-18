@@ -10,31 +10,95 @@
   <!-- chart.js cdn -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
   <!-- bootstrap cdn link -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <!-- local styles -->
   <link rel="stylesheet" href="./css/styles.css" />
   <title>Machine Laerning Playground</title>
 </head>
 <body>
-  <h1>🤖 Hello World 🤖</h1>
-  <h3>I'm learning....</h3>
-  <p id="learn-logs"></p>
-  <!-- <canvas id="scatter-chartjs" height="400" width="500"></canvas> -->
-  <div id="predict">
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <a href=" " class="navbar-brand">🤖 Hello World 🤖</a>
+  </nav>
 
-  </div>
-  <p id="pedict-num"></p>
-  <canvas id="input-canvas"></canvas>
-  <div>
-    <button id="cast-to-image">Cast To Image</button>
-    <button id="clear-input-canvas">clear</button>
-    <button id="print">print</button>
-    <button id="arrow-print">arrow print</button>
-  </div>
-  <!-- TODO make UI -->
-  <!-- import local scripts -->
-  <script src="js/MnistData.js"></script>
-  <script src="js/InputCavas.js"></script>
+  <main class="container">
+    <div class="row">
+      <!-- left col -->
+      <div class="col">
+        <!-- select model type -->
+        <div class="row">
+          <div class="form-group w-100">
+            <label for="data-select" class=" ">Select Dataset</label>
+            <select class="form-control custom-select" id="data-select">
+              <option selected value="numbers">MNIST handwritten numbers</option>
+              <option value="fashion">MNSIST fashion apparel</option>
+            </select>
+            
+            <label for="model-select" class=" ">Select Model</label>
+            <select class="form-control custom-select" id="model-select">
+              <option selected value="dense">dense</option>
+              <option value="convolutional">convolutional</option>
+            </select>
+            
+            <label for="units-number" class=" ">Dense Layer Units</label>
+            <input class="form-control" type="number" value="128" min="1" step="1" id="units-number">
+            
+            <label for="hidden-layers-number" class=" ">Hidden Layers</label>
+            <input class="form-control" type="number" value="1" min="1" step="1" id="hidden-layers-number">
+            
+            <button type="button" class="form-control btn btn-primary" id="model-create-destory">Create Model</button>
+          </div>
+        </div>
+        
+        <!-- TODO add model info table -->
+        
+        <!-- training form -->
+        <div class="row">
+          <div class="form-group w-100">
+            <label for="batch-number" class=" ">Batch Size</label>
+            <input class="form-control" type="number" value="128" min="1" step="1" id="batch-number">
+            
+            <label for="learning-rate-number" class=" ">Learning Rate</label>
+            <input class="form-control" type="number" value=".001" min="0" max="1" step=".00001" id="learning-rate-number">
+            
+            <label for="epochs-number" class=" ">Epochs</label>
+            <input class="form-control" type="number" value="1" min="1" step="1" id="epochs-number">
+            
+            <button type="button" class="form-control btn btn-primary" id="training-start-pause">Start Training Session</button>
+            
+            <button type="button" class="form-control btn btn-danger invisible" id="training-stop">End Training Session</button>
+          </div>
+        </div>
+        
+        <!-- canvas interaction -->
+        <div class="row">
+          <div id="input-canvas-container">
+            <canvas id="input-canvas"></canvas>
+          </div>
+          
+          <div class="form-group w-100">
+            <button type="button" class="form-control btn btn-primary" id="cast-to-image">Predict</button>
+            
+            <button type="button" class="form-control btn btn-primary" id="clear-input-canvas">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- right column -->
+      <div class="col">
+        <p id="learn-logs"></p>
+        <!-- <canvas id="scatter-chartjs" height="400" width="500"></canvas> -->
+        <div id="predict">
+          
+        </div>
+        
+        <p id="pedict-num"></p>
+      </div>
+    </div>
+  </main>
+    <!-- TODO make UI -->
+    <!-- import local scripts -->
+    <script src="js/MnistData.js"></script>
+    <script src="js/InputCanvas.js"></script>
   <script src="./js/state.js"></script>
   <script src="./js/functions-tfjs.js"></script>
   <script src="./js/functions-ui.js"></script>

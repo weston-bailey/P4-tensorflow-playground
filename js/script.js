@@ -1,9 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => init());
-castToImage = document.getElementById("cast-to-image")
-castToImage.addEventListener('click', () => { inputCanvas.castToImage() })
+/* ~~~~~~~~~~~~~~~~~~~~~~ event listeners ~~~~~~~~~~~~~~~~~~~~~~ */
+// select dataset
+const DATA_SELECT = document.getElementById('data-select');
+DATA_SELECT.addEventListener('change', e => handleDataSelect(e));
+// model creation
+const MODEL_SELECT = document.getElementById('model-select');
+const UNITS_NUMBER = document.getElementById('units-number');
+const HIDDEN_LAYERS_NUMBER = document.getElementById('hidden-layers-number');
+const MODEL_CREATE_DESTROY = document.getElementById('model-create-destory');
+MODEL_SELECT.addEventListener('change', e => handleModelSelect(e));
+UNITS_NUMBER.addEventListener('change', e => handleUnitsNumber(e));
+HIDDEN_LAYERS_NUMBER.addEventListener('change', e => handleHiddenLayersNumber(e))
+MODEL_CREATE_DESTROY.addEventListener('click', () => handleModelCreateDestroy());
+// train form
+const BATCH_NUMBER = document.getElementById('batch-number');
+const EPOCHS_NUMBER = document.getElementById('epochs-number');
+const LEARNING_RATE_NUMBER = document.getElementById('learning-rate-number');
+const TRAINING_START_PAUSE = document.getElementById('training-start-pause');
+const TRAINING_STOP = document.getElementById('training-stop');
+BATCH_NUMBER.addEventListener('change', e => handleBatchNumber(e));
+EPOCHS_NUMBER.addEventListener('change', e => handleEpochsNumber(e));
+LEARNING_RATE_NUMBER.addEventListener('change', e => handleLearningRateNumber(e));
+TRAINING_START_PAUSE.addEventListener('click', () => handleTrainingStartPause());
+TRAINING_STOP.addEventListener('click', () => handleTrainingStop());
 
-const CLEAR_INPUT_CANVAS = document.getElementById("clear-input-canvas")
-CLEAR_INPUT_CANVAS.addEventListener('click', () => { inputCanvas.clear() })
+
+
+// input canvas 
+const CAST_TO_IMAGE = document.getElementById("cast-to-image");
+const CLEAR_INPUT_CANVAS = document.getElementById("clear-input-canvas");
+CAST_TO_IMAGE.addEventListener('click', () => handlePredict());
+CLEAR_INPUT_CANVAS.addEventListener('click', () => inputCanvas.clear());
 
 
 // TODOS 
@@ -12,6 +39,7 @@ CLEAR_INPUT_CANVAS.addEventListener('click', () => { inputCanvas.clear() })
 
 // graph data
 
+// 
 
 
 let inputCanvas
@@ -51,25 +79,25 @@ async function init() {
   state.fashion.data.train = [xTrainFashion, yTrainFashion] = formatTrainData(fashionData);
   state.fashion.data.test = [xTestFashion, yTestFashion] = formatTestData(fashionData);
 
-  const [xTrain, yTrain] = state.fashion.data.train;
-  const [xTest, yTest] = state.fashion.data.test;
+  // const [xTrain, yTrain] = state.fashion.data.train;
+  // const [xTest, yTest] = state.fashion.data.test;
   // console.log([xTrainNumbers, yTrainNumbers])
   // console.log([xTestNumbers, yTestNumbers])
   // console.log([xTrain, yTrain])
   // console.log([xTest, yTest])
 
   // create model
-  model = createArbitraryDenseModel()
+  // model = createArbitraryDenseModel()
   // model = createConvNetModel()
 
   // fit model
   // model, history = fitModel(model, xTrainNumbers, yTrainNumbers)
-  model, info = await fitModel(model, xTrain, yTrain, xTest, yTest)
+  // model, info = await fitModel(model, xTrain, yTrain, xTest, yTest)
 
-  console.log('Final accuracy', info.history.acc);
-  console.log(model)
-  console.log(info)
-  modelPredict(model, [xTest, yTest])
+  // console.log('Final accuracy', info.history.acc);
+  // console.log(model)
+  // console.log(info)
+  // modelPredict(model, [xTest, yTest])
   
 }
 
