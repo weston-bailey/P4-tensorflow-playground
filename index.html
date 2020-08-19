@@ -21,7 +21,7 @@
 </head>
 <body>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-    <a href=" " class="navbar-brand">🤖 Hello World 🤖</a>
+    <a href=" " class="navbar-brand">🤖 Machine Learnig Playground 🤖</a>
   </nav>
 
   <main class="container-fluid">
@@ -138,29 +138,41 @@
               <button type="button" class="form-control btn btn-primary" id="training-start-pause">Start Training Session</button>
             </div>
             <!-- todo -->
-            <button type="button" class="form-control btn btn-danger invisible" id="training-stop">End Training Session</button>
+            <!-- <button type="button" class="form-control btn btn-danger invisible" id="training-stop">End Training Session</button> -->
           </div>
           <hr />
 
+          <div class="row">
+            <h5>Test your neural network with an image:</h5>
+          </div>
         <!-- Select Interaction -->    
         <div class="row">
           <ul class="nav nav-tabs">
             <li class="nav-item">
-              <a href="#image-select" class="nav-link active" data-toggle="tab">Image Select</a>
+              <a href="#image-selector" class="nav-link active" data-toggle="tab">Image Select</a>
             </li>
 
             <li class="nav-item">
-                <a href="#canvas" class="nav-link" data-toggle="tab">Canvas</a>
+                <a href="#canvas" class="nav-link" data-toggle="tab">Draw Canvas</a>
             </li>
           </ul>
         </div>
+
         <!-- canvas/slect -->
         <div class="row">
           <div class="tab-content p-1">
-            <div class="tab-pane fade show active" id="image-select">
-              <h4 class="mt-2">Profile tab content</h4>
-              <p>Vestibulum nec erat eu nulla rhoncus fringilla ut non neque. Vivamus nibh urna, ornare id gravida ut, mollis a magna. Aliquam porttitor condimentum nisi, eu viverra ipsum porta ut. Nam hendrerit bibendum turpis, sed molestie mi fermentum id. Aenean volutpat velit sem. Sed consequat ante in rutrum convallis. Nunc facilisis leo at faucibus adipiscing.</p>
+            <div class="tab-pane fade show active" id="image-selector">
+              <div class="row d-flex justify-content-center" id="image-select"></div>
+
+              <div class="form-inline">
+                <div class="row">
+                  <div class="col">
+                    <button type="button" class="form-control btn btn-primary" id="populate-image-select">New Image Set</button>
+                  </div>
+                </div>
+              </div>
             </div>
+
             <div class="tab-pane fade" id="canvas">
               <div id="row d-flex justify-content-center w-100">
                 <canvas id="input-canvas"></canvas>
@@ -169,13 +181,16 @@
               <div class="form-inline">
                 <div class="row">
 
-                  <div class="col"></div>
-                  <button type="button" class="form-control btn btn-primary" id="cast-to-image">Predict</button>
+                  <div class="col">
+                    <button type="button" class="form-control btn btn-primary" id="cast-to-image">Predict</button>
+                  </div>
 
                   <div class="col"></div>
                   
-                  <button type="button" class="form-control btn btn-primary" id="clear-input-canvas">Clear</button>
-                  <div class="col"></div>
+                  <div class="col">
+                    <button type="button" class="form-control btn btn-primary" id="clear-input-canvas">Clear</button>
+
+                  </div>
                 </div>
               </div>
             </div>
@@ -228,14 +243,31 @@
           <div class="progress-bar bg-danger" style="width: 0%" id="batch-loss-status"></div>
         </div>
 
+        <div class="row p-1"></div>
+
         <div class="row d-flex justify-content-center" id="batch-training-graph"></div>
         <hr />
         
-        <h5>Model Evaluation:</h5>
+        <div class="row">
+          <h5>Model Evaluation:</h5>
+        </div>
         <div class="row d-flex justify-content-center" id="model-eval-table"></div>
-        <div class="badge badge-success" id="eval-acc"></div>
 
+        <div class="row">
+          <div class="badge badge-success" id="eval-acc"></div>
+        </div>
         <hr />
+
+        <div class="row">
+          <h5>Model Predictions:</h5>
+        </div>
+        <div class="row">
+          <div class="caption" id="model-prediction"></div>
+        </div>
+        <div class="row" id="model-uncertainty"></div>
+        <div class="row" id="model-find-similar"></div>
+        <hr />
+
       </div>
       <!-- gutter col -->
       <div class="col-1"></div>

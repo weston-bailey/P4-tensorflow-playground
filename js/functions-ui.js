@@ -1,10 +1,12 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~ event handlers ~~~~~~~~~~~~~~~~~~~~~~ */
 
-// model creation form
+// model creation form 
+// TODO tidy this function up
 function handleDataSelect(e) {
   state.dataSet = e.target.value;
   clearDivChildren(DEMO_DATA)
   state.dataSet === 'numbers' ? showDemoData(state.numbers.data.train) : showDemoData(state.fashion.data.train);
+  state.dataSet === 'numbers' ? populateImageSelect(state.numbers.data.train) : populateImageSelect(state.fashion.data.train);
 }
 function handleModelSelect(e) {
   state.modelType = e.target.value;
@@ -112,7 +114,30 @@ function showDemoData(data) {
     DEMO_DATA.appendChild(canvas);
     canvas.className = 'demo-data-canvas'
   }
+}
 
+function populateImageSelect(data) {
+  const [xTest, yTest] = data;
+  clearDivChildren(IMAGE_SELECT);
+  for(let i = 0; i < 10; i++){
+    let rand = Math.floor(Math.random() * 1000);
+    let img = xTest.slice([rand, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1]);
+    const canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    canvas.style = 'margin: 4px;';
+    img = img.reshape([28, 28, 1]).resizeBilinear([45, 45]);
+    tf.browser.toPixels(img, canvas);
+    canvas.setAttribute('id', rand);
+    canvas.addEventListener('click', (e) => {
+      console.log(e.target.id)
+      let index = parseInt(e.target.id);
+      const [xTest, yTest] =  state.dataSet === 'numbers' ? state.numbers.data.test : state.fashion.data.test;
+      const imageTensor = xTest.slice([index, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1]);
+      modelPredictCanvas(state.model, imageTensor);
+    })
+    IMAGE_SELECT.appendChild(canvas);
+    canvas.className = 'image-select-canvas'
+  }
 }
 
 function showModelSummary(model) {
@@ -148,5 +173,12 @@ function showFittingTrainingStatus(){
   FITTING_TRAINING_STATUS.style.width = `${Math.ceil(percent)}%`;
   FITTING_TRAINING_STATUS.innerText = state.currentEpoch;
   // console.log(percent)
+}
+
+function showPrediction(preds){
+  const classNames = state.dataSet === 'numbers' ? state.numbers.classNames : state.fashion.classNames;
+  let index = preds.arraySync();
+  MODEL_PREDICTION.innerText = `I think that is an image of a(n) ${classNames[index]}`
+  // show prediction
 }
 

@@ -17,20 +17,22 @@ const BATCH_NUMBER = document.getElementById('batch-number');
 const EPOCHS_NUMBER = document.getElementById('epochs-number');
 const LEARNING_RATE_NUMBER = document.getElementById('learning-rate-number');
 const TRAINING_START_PAUSE = document.getElementById('training-start-pause');
-const TRAINING_STOP = document.getElementById('training-stop');
+// const TRAINING_STOP = document.getElementById('training-stop');
 BATCH_NUMBER.addEventListener('change', e => handleBatchNumber(e));
 EPOCHS_NUMBER.addEventListener('change', e => handleEpochsNumber(e));
 LEARNING_RATE_NUMBER.addEventListener('change', e => handleLearningRateNumber(e));
 TRAINING_START_PAUSE.addEventListener('click', () => handleTrainingStartPause());
-TRAINING_STOP.addEventListener('click', () => handleTrainingStop());
+// TRAINING_STOP.addEventListener('click', () => handleTrainingStop());
+// select image
+const IMAGE_SELECT = document.getElementById('image-select');
+const POPLULATE_IMAGE_SELECT = document.getElementById("populate-image-select");
+POPLULATE_IMAGE_SELECT.addEventListener('click', () => populateImageSelect(state.dataSet === 'numbers' ? state.numbers.data.train : state.fashion.data.train));
 // input canvas 
 const CAST_TO_IMAGE = document.getElementById("cast-to-image");
 const CLEAR_INPUT_CANVAS = document.getElementById("clear-input-canvas");
 CAST_TO_IMAGE.addEventListener('click', () => handlePredict());
 CLEAR_INPUT_CANVAS.addEventListener('click', () => inputCanvas.clear());
-
-/* ~~~~~~~~~~~~~~~~~~~~~~ DOM manipulation ~~~~~~~~~~~~~~~~~~~~~~ */
-// show images from dataset
+// right column info area
 const DEMO_DATA = document.getElementById('demo-data');
 const MODEL_LAYER_DETAILS = document.getElementById('model-layer-details');
 const EPOCH_TRAINING_STATUS = document.getElementById('epoch-training-status');
@@ -40,19 +42,13 @@ const BATCH_ACC_STATUS = document.getElementById('batch-acc-status');
 const BATCH_TRAINING_GRAPH = document.getElementById('batch-training-graph');
 const MODEL_EVAL_TABLE = document.getElementById('model-eval-table');
 const EVAL_ACC = document.getElementById('eval-acc');
-
-// TODOS 
-
-// resize displayed images
-
-// graph data
-
-// 
+const MODEL_PREDICTION = document.getElementById('model-prediction');
+const MODEL_UNCERTAINTY = document.getElementById('model-uncertainty');
+const MODEL_FIND_SIMILAR = document.getElementById('model-find-simmilar');
 
 
+// TODO check if there is a reason this is not in state
 let inputCanvas
-
-let model
 
 async function init() {
   inputCanvas = new InputCanvas({
@@ -88,6 +84,7 @@ async function init() {
   state.fashion.data.test = [xTestFashion, yTestFashion] = formatTestData(fashionData);
 
   showDemoData(state.numbers.data.test)
+  populateImageSelect(state.numbers.data.test)
 
   // const [xTrain, yTrain] = state.fashion.data.train;
   // const [xTest, yTest] = state.fashion.data.test;

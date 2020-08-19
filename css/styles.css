@@ -20,6 +20,15 @@ h1, h3 {
   width: "300"
 }
 
+.image-select-canvas {
+  cursor: pointer;
+  width: "150px"
+}
+/* not working... */
+.image-select-canvas:active {
+  width: "200px";
+}
+
 /* #input-canvas-container {
 	text-align: center; 
 }
