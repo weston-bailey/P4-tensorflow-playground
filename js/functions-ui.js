@@ -113,20 +113,25 @@ function showDemoData(data) {
 function populateImageSelect(data) {
   const [xTest, yTest] = data;
   clearDivChildren(IMAGE_SELECT);
+  for(let i = 0; i < state.predictImageSet.length; i++){
+    state.predictImageSet[i].dispose()
+  }
+  state.predictImageSet = []
   for(let i = 0; i < 10; i++){
     let rand = Math.floor(Math.random() * 1000);
     let img = xTest.slice([rand, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1]);
+    state.predictImageSet.push(img);
     const canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
     canvas.style = 'margin: 4px;';
     img = img.reshape([28, 28, 1]).resizeBilinear([45, 45]);
     tf.browser.toPixels(img, canvas);
-    canvas.setAttribute('id', rand);
+    canvas.setAttribute('id', i);
     canvas.addEventListener('click', (e) => {
       let index = parseInt(e.target.id);
-      const [xTest, yTest] =  state.dataSet === 'numbers' ? state.numbers.data.test : state.fashion.data.test;
-      const imageTensor = xTest.slice([index, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1]);
-      modelPredictCanvas(state.model, imageTensor);
+      // const [xTest, yTest] =  state.dataSet === 'numbers' ? state.numbers.data.test : state.fashion.data.test;
+      // const imageTensor = xTest.slice([index, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1]);
+      modelPredictCanvas(state.model, state.predictImageSet[i]);
     })
     IMAGE_SELECT.appendChild(canvas);
     canvas.className = 'image-select-canvas'

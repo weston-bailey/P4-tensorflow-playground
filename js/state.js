@@ -41,7 +41,7 @@ let state = {
     labelPath: 'https://storage.googleapis.com/learnjs-data/model-builder/fashion_mnist_labels_uint8',
     classNames: ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
   },
-  predictImageSet: {},
+  predictImageSet: [],
   // for training ui
   currentEpoch: 0,
   batchLoss: [],
