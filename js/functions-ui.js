@@ -57,28 +57,22 @@ function handleModelCreateDestroy() {
 
 // training form
 function handleBatchNumber(e) {
-  console.log('called')
   state.batchSize = parseInt(e.target.value)
-  console.log(state.batchSize);
 }
 
 function handleEpochsNumber(e) {
   state.epochs = e.target.value;
-  console.log(state.epochs);
 }
 
 function handleLearningRateNumber(e) {
   state.learningRate = parseFloat(e.target.value);
-  console.log(state.learningRate);
 }
 
 async function handleTrainingStartPause() {
   const [xTrain, yTrain] = state.dataSet === 'numbers' ? state.numbers.data.train : state.fashion.data.train;
   const [xTest, yTest] = state.dataSet === 'numbers' ? state.numbers.data.test : state.fashion.data.test;
-  // console.log(xTrain, yTrain, xTest, yTest, state.model)
   let info;
   state.model, info = await fitModel(state.model, xTrain, yTrain, xTest, yTest)
-  console.log('info', info)
 }
 
 function handleTrainingStop() {
@@ -129,7 +123,6 @@ function populateImageSelect(data) {
     tf.browser.toPixels(img, canvas);
     canvas.setAttribute('id', rand);
     canvas.addEventListener('click', (e) => {
-      console.log(e.target.id)
       let index = parseInt(e.target.id);
       const [xTest, yTest] =  state.dataSet === 'numbers' ? state.numbers.data.test : state.fashion.data.test;
       const imageTensor = xTest.slice([index, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1]);
@@ -141,7 +134,6 @@ function populateImageSelect(data) {
 }
 
 function showModelSummary(model) {
-  // console.log(MODEL_LAYER_DETAILS)
   tfvis.show.modelSummary(MODEL_LAYER_DETAILS, model)
 }
 
@@ -172,13 +164,20 @@ function showFittingTrainingStatus(){
   let percent = 100 * (state.currentEpoch / state.epochs);
   FITTING_TRAINING_STATUS.style.width = `${Math.ceil(percent)}%`;
   FITTING_TRAINING_STATUS.innerText = state.currentEpoch;
-  // console.log(percent)
 }
 
 function showPrediction(preds){
-  const classNames = state.dataSet === 'numbers' ? state.numbers.classNames : state.fashion.classNames;
+  let classNames = state.dataSet === 'numbers' ? state.numbers.classNames : state.fashion.classNames;
+  let uncert = Array.from(preds.dataSync());
+  preds = preds.argMax(-1);
   let index = preds.arraySync();
-  MODEL_PREDICTION.innerText = `I think that is an image of a(n) ${classNames[index]}`
+  preds.dispose();
   // show prediction
+  MODEL_PREDICTION.innerText = `I think that is an image of a(n) ${classNames[index]}.\nHere is a bar graph of my other guesses:`;
+  let data = []
+  for(let i = 0; i < uncert.length; i++) {
+    data.push({ index: i, value: uncert[i] });
+  }
+  tfvis.render.barchart(MODEL_UNCERTAINTY, data);
 }
 
