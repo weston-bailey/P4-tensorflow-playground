@@ -52,7 +52,6 @@ class InputCanvas {
     this.ctx.lineTo(...this.hoverPos[1]);
     this.ctx.stroke();
     this.imageUrl.src = this.canvas.toDataURL('image/png');
-    console.log(this.imageUrl)
   }
   // reset 
   clear() {

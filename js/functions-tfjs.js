@@ -76,45 +76,10 @@ function createArbitraryDenseModel() {
 }
 
 async function modelPredictCanvas(model, imageTensor){
-
-  // console.log(imageTensor)
   const testImage = imageTensor;
-  // const preds = model.predict(testImage).argMax(-1);
-  const preds = await model.predict(testImage).argMax(-1);
-  testImage.print()
-  console.log('preds', preds)
-  // console.log(model)
-  let p = document.getElementById("pedict-num")
-  p.innerText = `I predicted that the image your drew is a ${preds.arraySync()}`
+  const preds = await model.predict(testImage)
+  showPrediction(preds)
   // imageTensor.dispose()
-}
-
-function modelPredict(model, data){
-  // get test data
-  const [xTest, yTest] = data
-  // xPredict = xTest.slice([0, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1])
-  let rand = Math.floor(Math.random() * 1000)
-  xPredict = xTest.slice([rand, 0, 0, 0], [1, state.imageHeight, state.imageWidth, 1])
-  yPredict = yTest.slice([rand, 0], [1, state.outputClasses]).argMax(-1)
-
-
-  const preds = model.predict(xPredict).argMax(-1);
-
-  console.log(preds)
-
-  console.log(preds.arraySync()) // this is the prediction value
-
-  // show prediction on canvas
-  let div = document.getElementById('predict')
-  const canvas = document.createElement('canvas');
-  let ctx = canvas.getContext('2d')
-  let p = document.getElementById("pedict-num")
-  p.innerText = `I predicted the above image is a ${preds.arraySync()}\n~~~~~~~~~~~~~~\naccording to the dataset it is a ${yPredict.arraySync()}`
-  // canvas.style = 'margin: 4px;';
-  xPredict = xPredict.reshape([28, 28, 1])
-  xPredict.print()
-  tf.browser.toPixels(xPredict, canvas)
-  div.appendChild(canvas);
 }
 
 // called at end of fitting epochs
@@ -139,17 +104,17 @@ async function fitModel(model, xTrain, yTrain, xTest, yTest) {
     shuffle: true,
     callbacks: { onBatchEnd }
   });
-  await evaluateModel(model, xTest, yTest)
+  // await evaluateModel(model)
 
   return model, info
 }
 
 // evaluate model's accuracy TODO breakout ui stuff
-async function evaluateModel(model, xTest, yTest) {
+async function evaluateModel(model) {
   // evaluate model
-  const classNames = state.dataSet === 'numbers' ? state.numbers.classNames : state.fashion.classNames;
+  const classNames = 'numbers' ? state.numbers.classNames : state.fashion.classNames;
 
-  // const [xTest, yTest] = state.dataSet === 'numbers' ? state.numbers.data.test : state.fashion.data.test;
+  const [xTest, yTest] = 'numbers' ? state.numbers.data.test : state.fashion.data.test;
 
   let xPredict = model.predict(xTest).argMax(1)
   let yPredict = yTest.argMax(1)
