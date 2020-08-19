@@ -112,9 +112,10 @@ async function fitModel(model, xTrain, yTrain, xTest, yTest) {
 // evaluate model's accuracy TODO breakout ui stuff
 async function evaluateModel(model) {
   // evaluate model
-  const classNames = 'numbers' ? state.numbers.classNames : state.fashion.classNames;
+  const classNames = state.dataSet === 'numbers' ? state.numbers.classNames : state.fashion.classNames;
+  console.log(classNames, state.dataSet)
 
-  const [xTest, yTest] = 'numbers' ? state.numbers.data.test : state.fashion.data.test;
+  const [xTest, yTest] = state.dataSet ===  'numbers' ? state.numbers.data.test : state.fashion.data.test;
 
   let xPredict = model.predict(xTest).argMax(1)
   let yPredict = yTest.argMax(1)
